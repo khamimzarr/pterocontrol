@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MobileMenu } from "@/components/mobile-menu";
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -13,8 +14,8 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 function GlobalNav() {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-[16px] bg-[rgba(5,6,15,0.55)] border-b border-[rgba(186,215,247,0.08)]">
-      <div className="mx-auto max-w-[1200px] px-6 h-[52px] flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 group">
+      <div className="mx-auto max-w-[1200px] px-6 h-[52px] flex items-center justify-between gap-2">
+        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
           <span className="w-7 h-7 rounded-full grid place-items-center bg-[rgba(186,214,247,0.08)] border border-[rgba(186,215,247,0.12)]"><span className="w-2.5 h-2.5 rounded-full bg-[#663af3] shadow-[0_0_10px_rgba(102,58,243,0.8)] animate-shimmer-dot" /></span>
           <span className="font-medium text-[15px] tracking-[-0.02em] text-[#d1e4fa]">PteroControl</span>
         </Link>
@@ -24,7 +25,8 @@ function GlobalNav() {
         </nav>
         <div className="flex items-center gap-2">
           <Link href="/login" className="hidden sm:inline-flex px-3 py-1.5 rounded-full text-[13px] font-medium text-[#c7d3ea] hover:text-white">Masuk</Link>
-          <Link href="/register" className="inline-flex flash-violet rounded-full px-4 py-1.5 text-[13px] font-medium text-white">Daftar</Link>
+          <Link href="/register" className="hidden sm:inline-flex flash-violet rounded-full px-4 py-1.5 text-[13px] font-medium text-white">Daftar</Link>
+          <MobileMenu links={[{ href: "#agregator", label: "Agregator" },{ href: "#enkripsi", label: "Enkripsi" },{ href: "/login", label: "Masuk" },{ href: "/register", label: "Daftar", active: true }]} />
         </div>
       </div>
     </header>

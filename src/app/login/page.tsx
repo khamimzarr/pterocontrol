@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { login } from "@/lib/actions/auth-actions";
+import { LoginForm } from "@/components/auth-forms";
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
@@ -20,12 +20,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full grid place-items-center bg-[#663af3] text-white font-medium text-[13px] shadow-[0_0_16px_rgba(102,58,243,0.45)]">◈</span><span className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Masuk</span></div>
           <h1 className="mt-3 font-[var(--font-aeonikpro)] font-medium text-[22px] leading-none text-white">Masuk.</h1>
           <p className="mt-2 text-[13px] text-[#9da7ba]">Butuh status <span className="text-[#d1e4fa] font-medium">APPROVED</span>.</p>
-          {errMsg && <div className="mt-5 rounded-[10px] bg-[rgba(228,109,76,0.10)] border border-[rgba(228,109,76,0.22)] px-4 py-2.5 text-[13px] text-[#e46d4c]">{errMsg}</div>}
-          <form action={login} className="mt-6 space-y-3.5">
-            <label className="block"><span className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#c7d3ea]">Email</span><input name="email" type="email" required autoComplete="email" placeholder="kamu@email.com" className="auth-input mt-1.5 w-full px-3 py-2.5 text-[14px]" /></label>
-            <label className="block"><span className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#c7d3ea]">Kata sandi</span><input name="password" type="password" required autoComplete="current-password" placeholder="••••••••" className="auth-input mt-1.5 w-full px-3 py-2.5 text-[14px]" /></label>
-            <button type="submit" className="w-full mt-1 flash-violet rounded-[6px] py-2.5 text-[14px] font-medium text-white">Continue</button>
-          </form>
+          <LoginForm errMsg={errMsg} />
           <p className="mt-4 text-center text-[12px] text-[#9da7ba]">Belum punya akun? <Link href="/register" className="text-[#d1e4fa] hover:text-white hover:underline">Daftar →</Link></p>
         </div>
       </div>

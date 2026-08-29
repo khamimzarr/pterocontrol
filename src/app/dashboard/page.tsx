@@ -5,19 +5,36 @@ import { createClient } from "@/lib/supabase/server";
 import { decrypt } from "@/lib/encryption";
 import { aggregatePanels, type FetchPanelResult } from "@/lib/pterodactyl";
 import { logout } from "@/lib/actions/auth-actions";
+import { MobileMenu } from "@/components/mobile-menu";
+import { DashboardTable } from "@/components/dashboard-table";
+import { RealtimePanels } from "@/components/realtime";
 
 function TopNav({ email, isAdmin }: { email: string; isAdmin: boolean }) {
+  const links = [
+    { href: "/dashboard", label: "Dasbor", active: true },
+    { href: "/panels", label: "Panel" },
+    ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
+    { href: "/akun", label: "Akun" },
+  ];
   return (
     <header className="sticky top-0 z-40 backdrop-blur-[16px] bg-[rgba(5,6,15,0.65)] border-b border-[rgba(186,215,247,0.08)]">
-      <div className="mx-auto max-w-[1200px] px-6 h-[52px] flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-2.5"><span className="w-7 h-7 rounded-full grid place-items-center bg-[rgba(186,214,247,0.08)] border border-[rgba(186,215,247,0.12)]"><span className="w-2.5 h-2.5 rounded-full bg-[#663af3] shadow-[0_0_10px_rgba(102,58,243,0.8)] animate-shimmer-dot" /></span><span className="font-medium text-[15px] text-[#d1e4fa]">PteroControl</span><span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium text-[#c7d3ea] bg-[rgba(199,211,234,0.10)] border border-[rgba(186,215,247,0.06)]">dasbor</span></Link>
+      <div className="mx-auto max-w-[1200px] px-6 h-[52px] flex items-center justify-between gap-2">
+        <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0">
+          <span className="w-7 h-7 rounded-full grid place-items-center bg-[rgba(186,214,247,0.08)] border border-[rgba(186,215,247,0.12)]"><span className="w-2.5 h-2.5 rounded-full bg-[#663af3] shadow-[0_0_10px_rgba(102,58,243,0.8)] animate-shimmer-dot" /></span>
+          <span className="font-medium text-[15px] text-[#d1e4fa]">PteroControl</span>
+          <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium text-[#c7d3ea] bg-[rgba(199,211,234,0.10)] border border-[rgba(186,215,247,0.06)]">dasbor</span>
+        </Link>
         <nav className="hidden md:flex items-center gap-1 text-[13px] font-medium text-[#c7d3ea]">
           <Link href="/dashboard" className="px-3 py-1.5 rounded-full bg-[rgba(199,211,234,0.12)] text-white">Dasbor</Link>
           <Link href="/panels" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Panel</Link>
           {isAdmin && <Link href="/admin" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Admin</Link>}
           <Link href="/akun" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Akun</Link>
         </nav>
-        <div className="flex items-center gap-2"><span className="hidden sm:inline text-[11px] text-[#9da7ba] truncate max-w-[140px]">{email}</span><form action={logout}><button className="pill-ghost rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Keluar</button></form></div>
+        <div className="flex items-center gap-2">
+          <span className="hidden sm:inline text-[11px] text-[#9da7ba] truncate max-w-[140px]">{email}</span>
+          <form action={logout} className="hidden sm:block"><button className="pill-ghost rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Keluar</button></form>
+          <MobileMenu links={links} />
+        </div>
       </div>
     </header>
   );
@@ -42,13 +59,14 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#05060f] flex flex-col">
       <TopNav email={user.email} isAdmin={user.role === "ADMIN"} />
+      <RealtimePanels userId={user.id} />
       <section className="relative overflow-hidden border-b border-[rgba(186,215,247,0.06)]">
         <div className="absolute inset-0 bg-grid opacity-[0.22] pointer-events-none" aria-hidden />
         <div className="relative mx-auto max-w-[1200px] px-6 md:px-10 py-7">
           <p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Dasbor</p>
           <h1 className="mt-1 font-[var(--font-aeonikpro)] font-medium text-[26px] md:text-[30px] leading-none tracking-[-0.02em] text-[#d8ecf8]">Semua server.</h1>
           <p className="mt-2 text-[13px] text-[#9da7ba]">{hasPanels ? `${panels!.length} panel · ${ok}/${panels!.length} online · ${total} server` : "Belum ada panel."}</p>
-          <div className="mt-4 flex gap-2"><Link href="/panels" className="flash-violet rounded-full px-5 py-2 text-[13px] font-medium text-white">Kelola Panel</Link>{!hasPanels && <span className="inline-flex items-center rounded-full bg-[rgba(199,211,234,0.08)] border border-[rgba(186,215,247,0.08)] text-[11px] text-[#9da7ba] px-3 py-2">Client API key</span>}</div>
+          <div className="mt-4 flex gap-2 flex-wrap"><Link href="/panels" className="flash-violet rounded-full px-5 py-2 text-[13px] font-medium text-white">Kelola Panel</Link>{!hasPanels && <span className="inline-flex items-center rounded-full bg-[rgba(199,211,234,0.08)] border border-[rgba(186,215,247,0.08)] text-[11px] text-[#9da7ba] px-3 py-2">Client API key</span>}</div>
         </div>
       </section>
       <section className="flex-1 py-6 bg-[#05060f]">
@@ -77,19 +95,14 @@ export default async function DashboardPage() {
                   </div>
                 ))}
               </div>
-              <div className="mt-4 rounded-[16px] bg-[rgba(5,6,15,0.82)] border border-[rgba(186,215,247,0.10)] overflow-hidden shadow-[inset_0_1px_1px_rgba(216,236,248,0.10)]">
-                <div className="px-6 py-3 border-b border-[rgba(186,215,247,0.08)] bg-[rgba(186,214,247,0.03)] flex justify-between items-center"><h2 className="font-medium text-[13px] text-white">Server</h2><span className="text-[11px] text-[#9da7ba] font-[var(--font-dotdigital)]">{all.length}</span></div>
-                {all.length === 0 ? (
-                  <div className="px-6 py-7 text-center text-[13px] text-[#9da7ba]">Tidak ada data. <Link href="/panels" className="text-[#b6d9fc] hover:text-white">Cek panel →</Link></div>
-                ) : (
-                  <div className="overflow-x-auto"><table className="w-full text-left"><thead><tr className="bg-[rgba(186,214,247,0.04)] text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba] border-b border-[rgba(186,215,247,0.08)]"><th className="px-6 py-2.5 font-normal">Server</th><th className="px-4 py-2.5 font-normal">Panel</th><th className="px-4 py-2.5 font-normal">Node</th><th className="px-4 py-2.5 font-normal">RAM</th><th className="px-4 py-2.5 font-normal">CPU</th><th className="px-6 py-2.5 font-normal">ID</th></tr></thead><tbody className="divide-y divide-[rgba(186,215,247,0.06)]">{all.map((s) => (<tr key={`${s.panelId}-${s.identifier}`} className="hover:bg-[rgba(186,214,247,0.04)]"><td className="px-6 py-3 text-[13px] font-medium text-white truncate max-w-[180px]">{s.name}</td><td className="px-4 py-3 text-[12px] text-[#c7d3ea]">{s.panelName}</td><td className="px-4 py-3 text-[12px] text-[#9da7ba]">{s.node ?? "—"}</td><td className="px-4 py-3 text-[12px] text-[#d1e4fa]">{s.memoryLimit != null ? `${s.memoryLimit} MB` : "—"}</td><td className="px-4 py-3 text-[12px] text-[#d1e4fa]">{s.cpuLimit != null ? `${s.cpuLimit}%` : "—"}</td><td className="px-6 py-3 font-mono text-[11px] text-[#9da7ba]">{s.identifier}</td></tr>))}</tbody></table></div>
-                )}
+              <div className="mt-4">
+                <DashboardTable servers={all} />
               </div>
             </>
           )}
         </div>
       </section>
-      <footer className="border-t border-[rgba(186,215,247,0.06)] bg-[rgba(186,214,247,0.015)] py-4"><div className="mx-auto max-w-[1200px] px-6 md:px-10 text-[11px] text-[#9da7ba]">© 2025 PteroControl</div></footer>
+      <footer className="border-t border-[rgba(186,215,247,0.06)] bg-[rgba(186,214,247,0.015)] py-4"><div className="mx-auto max-w-[1200px] px-6 md:px-10 text-[11px] text-[#9da7ba]">© 2025 PteroControl · RLS · Live via Realtime</div></footer>
     </div>
   );
 }
