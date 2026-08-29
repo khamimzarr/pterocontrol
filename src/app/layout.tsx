@@ -1,38 +1,36 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const sfDisplay = Inter({
+const untitledSans = Inter({
   subsets: ["latin"],
-  variable: "--font-sf-pro-display",
+  variable: "--font-untitled-sans",
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
-
-const sfText = Inter({
+const aeonikPro = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-sf-pro-text",
-  weight: ["400", "500", "600"],
+  variable: "--font-aeonikpro",
+  weight: ["400", "500"],
+  display: "swap",
+});
+const dotDigital = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-dotdigital",
+  weight: ["400"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "PteroControl — Semua panel-mu. Satu kendali.",
+  title: "PteroControl — Satu dasbor untuk semua panel",
   description:
-    "Agregator Pterodactyl. Hubungkan banyak panel, enkripsi API key pakai AES-256-CBC dan lihat semua server dalam satu dasbor. Tema Apple — cathedral of whitespace.",
+    "Aggregator Pterodactyl. Hubungkan banyak panel, API key terenkripsi AES-256-CBC, satu dasbor untuk semua server.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="id"
-      className={`${sfDisplay.variable} ${sfText.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-white text-[#1d1d1f]">
+    <html lang="id" className={`${untitledSans.variable} ${aeonikPro.variable} ${dotDigital.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-[#05060f] text-[#d1e4fa] selection:bg-[rgba(102,58,243,0.35)]">
         {children}
       </body>
     </html>

@@ -8,21 +8,35 @@ import { logout } from "@/lib/actions/auth-actions";
 
 function TopNav({ email, isAdmin }: { email: string; isAdmin: boolean }) {
   return (
-    <nav className="sticky top-0 z-50 h-11 flex items-center justify-center bg-[#fafafc]/80 backdrop-blur-[20px] border-b border-black/[0.04]">
-      <div className="w-full max-w-[1200px] mx-auto px-6 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-2 text-[12px] font-semibold tracking-[0.04em] text-[#1d1d1f]">◈ PteroControl</Link>
-        <div className="hidden md:flex items-center gap-6 text-[12px] tracking-[-0.12px] text-[#1d1d1f]">
-          <Link href="/dashboard" className="font-medium text-[#0071e3]">Dasbor</Link>
-          <Link href="/panels" className="hover:text-[#707070]">Panel</Link>
-          {isAdmin && <Link href="/admin" className="hover:text-[#707070]">Admin</Link>}
-          <Link href="/akun" className="hover:text-[#707070]">Akun</Link>
-        </div>
+    <header className="sticky top-0 z-40 backdrop-blur-[16px] bg-[rgba(5,6,15,0.65)] border-b border-[rgba(186,215,247,0.08)]">
+      <div className="mx-auto max-w-[1200px] px-6 h-[52px] flex items-center justify-between">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <span className="w-7 h-7 rounded-full grid place-items-center bg-[rgba(186,214,247,0.08)] border border-[rgba(186,215,247,0.12)]"><span className="w-2.5 h-2.5 rounded-full bg-[#663af3] shadow-[0_0_10px_rgba(102,58,243,0.8)] animate-shimmer-dot" /></span>
+          <span className="font-medium text-[15px] tracking-[-0.02em] text-[#d1e4fa]">PteroControl</span>
+          <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium text-[#c7d3ea] bg-[rgba(199,211,234,0.10)] border border-[rgba(186,215,247,0.06)]">dasbor</span>
+        </Link>
+        <nav className="hidden md:flex items-center gap-1 text-[13px] font-medium text-[#c7d3ea]">
+          <Link href="/dashboard" className="px-3 py-1.5 rounded-full bg-[rgba(199,211,234,0.12)] text-white">Dasbor</Link>
+          <Link href="/panels" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)] transition-colors">Panel</Link>
+          {isAdmin && <Link href="/admin" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)] transition-colors">Admin</Link>}
+          <Link href="/akun" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)] transition-colors">Akun</Link>
+        </nav>
         <div className="flex items-center gap-2">
-          <span className="hidden sm:inline text-[11px] text-[#707070] truncate max-w-[140px]">{email}</span>
-          <form action={logout}><button className="rounded-full border border-[#d6d6d6] text-[12px] font-medium px-3 py-1.5 hover:bg-[#f5f5f7]">Keluar</button></form>
+          <span className="hidden sm:inline text-[11px] text-[#9da7ba] truncate max-w-[140px]">{email}</span>
+          <form action={logout}><button className="pill-ghost rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Keluar</button></form>
         </div>
       </div>
-    </nav>
+    </header>
+  );
+}
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="eyebrow-line flex-1 max-w-[48px]" />
+      <span className="font-[var(--font-dotdigital)] text-[11px] sm:text-[12px] tracking-[0.10em] uppercase text-[#9da7ba] whitespace-nowrap">{children}</span>
+      <span className="eyebrow-line flex-1 max-w-[48px]" />
+    </div>
   );
 }
 
@@ -43,58 +57,69 @@ export default async function DashboardPage() {
   }
   const all = results.flatMap((r) => r.servers);
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-[#05060f] flex flex-col">
       <TopNav email={user.email} isAdmin={user.role === "ADMIN"} />
-      <section className="animate-up bg-white border-b border-[#e8e8ed]">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-8">
-          <p className="text-[11px] font-medium tracking-[0.04em] text-[#b64400]">Dasbor · Agregator</p>
-          <h1 className="mt-1 font-[var(--font-sf-pro-display)] font-semibold text-[28px] md:text-[32px] leading-none text-[#1d1d1f]">Semua server-mu, satu tempat.</h1>
-          <p className="mt-2 text-[13px] text-[#707070]">
-            {hasPanels ? `${panels!.length} panel · ${ok} online · ${total} server` : "Belum ada panel. Tambahkan dulu, bung."}
+
+      <section className="relative overflow-hidden border-b border-[rgba(186,215,247,0.06)]">
+        <div className="absolute inset-0 bg-grid opacity-[0.22] pointer-events-none" aria-hidden />
+        <div className="absolute inset-0 halo opacity-[0.35] pointer-events-none" aria-hidden />
+        <div className="relative mx-auto max-w-[1200px] px-6 md:px-10 py-8">
+          <Eyebrow>Dasbor · Agregator</Eyebrow>
+          <h1 className="mt-3 font-[var(--font-aeonikpro)] font-medium text-[28px] md:text-[32px] leading-none tracking-[-0.02em] text-[#d8ecf8]">Semua server-mu, satu tempat.</h1>
+          <p className="mt-2 text-[13px] leading-[1.5] text-[#9da7ba]">
+            {hasPanels ? `${panels!.length} panel · ${ok} online · ${total} server` : "Belum ada panel. Tambahkan dulu."}
           </p>
           <div className="mt-4 flex gap-2">
-            <Link href="/panels" className="rounded-full bg-[#0071e3] text-white text-[13px] font-medium px-5 py-2 hover:bg-[#0077ed] transition-all hover:scale-[1.02]">Kelola Panel</Link>
-            {!hasPanels && <span className="rounded-full bg-[#f5f5f7] border border-[#e8e8ed] text-[11px] text-[#707070] px-3 py-2">Tips: pakai Client API key</span>}
+            <Link href="/panels" className="flash-violet inline-flex rounded-full px-5 py-2 text-[13px] font-medium text-white">Kelola Panel</Link>
+            {!hasPanels && <span className="inline-flex items-center rounded-full bg-[rgba(199,211,234,0.08)] border border-[rgba(186,215,247,0.08)] text-[11px] text-[#9da7ba] px-3 py-2">Pakai Client API key</span>}
           </div>
         </div>
       </section>
-      <section className="bg-[#f5f5f7] py-6 flex-1">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-10">
+
+      <section className="flex-1 py-6 bg-[#05060f]">
+        <div className="mx-auto max-w-[1200px] px-6 md:px-10">
           {!hasPanels ? (
-            <div className="animate-up-1 rounded-[28px] bg-white p-8 border border-[#e8e8ed] text-center hover-lift">
-              <p className="text-[11px] tracking-[0.04em] text-[#707070]">Kosong</p>
-              <h2 className="mt-1 font-[var(--font-sf-pro-display)] font-semibold text-[18px] text-[#1d1d1f]">Hubungkan panel pertamamu</h2>
-              <p className="mt-1 text-[13px] text-[#707070]">URL + Client API key → terenkripsi AES-256-CBC.</p>
-              <Link href="/panels" className="mt-4 inline-flex rounded-full bg-[#0071e3] text-white text-[13px] font-medium px-5 py-2 hover:bg-[#0077ed]">Tambah Panel ›</Link>
+            <div className="rounded-[16px] bg-[rgba(5,6,15,0.82)] border border-[rgba(186,215,247,0.10)] p-8 text-center shadow-[inset_0_1px_1px_rgba(216,236,248,0.10)]">
+              <div className="w-10 h-10 mx-auto rounded-full grid place-items-center bg-[rgba(186,214,247,0.06)] border border-[rgba(186,215,247,0.10)]">
+                <span className="w-2 h-2 rounded-full bg-[#663af3] animate-pulse-dot" />
+              </div>
+              <p className="mt-3 text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Kosong</p>
+              <h2 className="mt-1 font-[var(--font-aeonikpro)] font-medium text-[18px] text-white">Hubungkan panel pertamamu</h2>
+              <p className="mt-1 text-[13px] text-[#9da7ba]">URL + Client API key → terenkripsi AES-256-CBC.</p>
+              <Link href="/panels" className="mt-4 inline-flex flash-violet rounded-full px-5 py-2 text-[13px] font-medium text-white">Tambah Panel →</Link>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 stagger">
-                <div className="rounded-[28px] bg-white p-5 border border-[#e8e8ed] hover-lift"><p className="text-[11px] tracking-[0.04em] text-[#707070]">Panel</p><p className="font-[var(--font-sf-pro-display)] font-semibold text-[28px] text-[#1d1d1f]">{panels!.length}</p><p className="text-[11px] text-[#707070]">{ok} online</p></div>
-                <div className="rounded-[28px] bg-white p-5 border border-[#e8e8ed] hover-lift"><p className="text-[11px] tracking-[0.04em] text-[#707070]">Server</p><p className="font-[var(--font-sf-pro-display)] font-semibold text-[28px] text-[#1d1d1f]">{total}</p><p className="text-[11px] text-[#707070]">tergabung</p></div>
-                <div className="rounded-[28px] bg-[#1d1d1f] p-5 text-white hover-lift"><p className="text-[11px] text-white/60">Status</p><p className="font-semibold text-[17px]">{ok === panels!.length ? "Semua Oke" : `${panels!.length - ok} error`}</p><p className="text-[11px] text-white/60">anti-nge-hang</p></div>
-                <div className="rounded-[28px] bg-white p-5 border border-[#e8e8ed] hover-lift"><p className="text-[11px] tracking-[0.04em] text-[#707070]">Enkripsi</p><p className="font-semibold text-[17px] text-[#1d1d1f]">AES-256</p><p className="text-[11px] text-[#707070]">zero-knowledge</p></div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="glass-card rounded-[16px] p-5"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Panel</p><p className="font-[var(--font-aeonikpro)] font-medium text-[28px] leading-none text-white mt-1">{panels!.length}</p><p className="text-[11px] text-[#9da7ba]">{ok} online</p></div>
+                <div className="glass-card rounded-[16px] p-5"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Server</p><p className="font-[var(--font-aeonikpro)] font-medium text-[28px] leading-none text-white mt-1">{total}</p><p className="text-[11px] text-[#9da7ba]">tergabung</p></div>
+                <div className="rounded-[16px] bg-[#663af3] p-5 text-white shadow-[0_8px_24px_rgba(102,58,243,0.35)]"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-white/70">Status</p><p className="font-medium text-[16px] mt-1">{ok === panels!.length ? "Semua oke" : `${panels!.length - ok} error`}</p><p className="text-[11px] text-white/70">anti nge-hang</p></div>
+                <div className="glass-card rounded-[16px] p-5"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Enkripsi</p><p className="font-medium text-[16px] text-white mt-1">AES-256</p><p className="text-[11px] text-[#9da7ba]">zero-knowledge</p></div>
               </div>
-              <div className="mt-4 grid md:grid-cols-3 gap-3 stagger">
+
+              <div className="mt-4 grid md:grid-cols-3 gap-3">
                 {results.map((r) => (
-                  <div key={r.panelId} className="rounded-[28px] bg-white p-5 border border-[#e8e8ed] hover-lift">
+                  <div key={r.panelId} className="glass-card rounded-[16px] p-5">
                     <div className="flex justify-between gap-3">
-                      <div className="min-w-0"><p className="font-medium text-[13px] truncate text-[#1d1d1f]">{r.panelName}</p><p className="text-[11px] text-[#707070] truncate">{r.panelUrl}</p></div>
-                      <span className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${r.ok ? "bg-[#f5f5f7] border border-[#e8e8ed]" : "bg-[#fff1f0] text-[#b64400] border border-[#ffd7d5]"}`}><span className={`w-1.5 h-1.5 rounded-full ${r.ok ? "bg-[#0071e3] animate-pulse-dot" : "bg-[#b64400]"}`} />{r.ok ? `${r.servers.length} srv` : "Error"}</span>
+                      <div className="min-w-0"><p className="font-medium text-[13px] truncate text-white">{r.panelName}</p><p className="text-[11px] text-[#9da7ba] truncate">{r.panelUrl}</p></div>
+                      <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium border ${r.ok ? "bg-[rgba(199,211,234,0.10)] text-[#d1e4fa] border-[rgba(186,215,247,0.08)]" : "bg-[rgba(228,109,76,0.12)] text-[#e46d4c] border-[rgba(228,109,76,0.22)]"}`}><span className={`w-1.5 h-1.5 rounded-full ${r.ok ? "bg-[#663af3] animate-pulse-dot" : "bg-[#e46d4c]"}`} />{r.ok ? `${r.servers.length} srv` : "Error"}</span>
                     </div>
-                    {!r.ok && r.error && <p className="mt-2 text-[11px] text-[#b64400] break-words">{r.error}</p>}
+                    {!r.ok && r.error && <p className="mt-2 text-[11px] text-[#e46d4c] break-words">{r.error}</p>}
                   </div>
                 ))}
               </div>
-              <div className="animate-up mt-4 rounded-[28px] bg-white border border-[#e8e8ed] overflow-hidden hover-lift">
-                <div className="px-6 py-4 border-b border-[#e8e8ed] flex justify-between"><h2 className="font-semibold text-[15px] text-[#1d1d1f]">Server</h2><span className="text-[11px] text-[#707070]">{all.length} baris</span></div>
+
+              <div className="mt-4 rounded-[16px] bg-[rgba(5,6,15,0.82)] border border-[rgba(186,215,247,0.10)] overflow-hidden shadow-[inset_0_1px_1px_rgba(216,236,248,0.10),0_24px_48px_rgba(0,0,0,0.35)]">
+                <div className="px-6 py-4 border-b border-[rgba(186,215,247,0.08)] bg-[rgba(186,214,247,0.03)] flex justify-between items-center">
+                  <h2 className="font-medium text-[14px] text-white">Server</h2><span className="text-[11px] text-[#9da7ba] font-[var(--font-dotdigital)]">{all.length} baris</span>
+                </div>
                 {all.length === 0 ? (
-                  <div className="px-6 py-8 text-center text-[13px] text-[#707070]">Belum kebaca. Cek Client API key-mu, bung. <Link href="/panels" className="text-[#0066cc] hover:underline"> Cek panel ›</Link></div>
+                  <div className="px-6 py-8 text-center text-[13px] text-[#9da7ba]">Belum kebaca. Cek Client API key-mu. <Link href="/panels" className="text-[#b6d9fc] hover:text-white">Cek panel →</Link></div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                      <thead><tr className="bg-[#fafafc] text-[11px] tracking-[0.04em] text-[#707070] border-b border-[#e8e8ed]"><th className="px-6 py-2.5 font-medium">Server</th><th className="px-4 py-2.5 font-medium">Panel</th><th className="px-4 py-2.5 font-medium">Node</th><th className="px-4 py-2.5 font-medium">RAM</th><th className="px-4 py-2.5 font-medium">CPU</th><th className="px-6 py-2.5 font-medium">ID</th></tr></thead>
-                      <tbody className="divide-y divide-[#f5f5f7]">{all.map((s) => (<tr key={`${s.panelId}-${s.identifier}`} className="hover:bg-[#f5f5f7]/60"><td className="px-6 py-3 text-[13px] font-medium text-[#1d1d1f] truncate max-w-[180px]">{s.name}</td><td className="px-4 py-3 text-[12px] text-[#474747]">{s.panelName}</td><td className="px-4 py-3 text-[12px] text-[#707070]">{s.node ?? "—"}</td><td className="px-4 py-3 text-[12px] text-[#1d1d1f]">{s.memoryLimit != null ? `${s.memoryLimit} MB` : "—"}</td><td className="px-4 py-3 text-[12px] text-[#1d1d1f]">{s.cpuLimit != null ? `${s.cpuLimit}%` : "—"}</td><td className="px-6 py-3 font-mono text-[11px] text-[#707070]">{s.identifier}</td></tr>))}</tbody>
+                      <thead><tr className="bg-[rgba(186,214,247,0.04)] text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba] border-b border-[rgba(186,215,247,0.08)]"><th className="px-6 py-2.5 font-normal">Server</th><th className="px-4 py-2.5 font-normal">Panel</th><th className="px-4 py-2.5 font-normal">Node</th><th className="px-4 py-2.5 font-normal">RAM</th><th className="px-4 py-2.5 font-normal">CPU</th><th className="px-6 py-2.5 font-normal">ID</th></tr></thead>
+                      <tbody className="divide-y divide-[rgba(186,215,247,0.06)]">{all.map((s) => (<tr key={`${s.panelId}-${s.identifier}`} className="hover:bg-[rgba(186,214,247,0.04)] transition-colors"><td className="px-6 py-3 text-[13px] font-medium text-white truncate max-w-[180px]">{s.name}</td><td className="px-4 py-3 text-[12px] text-[#c7d3ea]">{s.panelName}</td><td className="px-4 py-3 text-[12px] text-[#9da7ba]">{s.node ?? "—"}</td><td className="px-4 py-3 text-[12px] text-[#d1e4fa]">{s.memoryLimit != null ? `${s.memoryLimit} MB` : "—"}</td><td className="px-4 py-3 text-[12px] text-[#d1e4fa]">{s.cpuLimit != null ? `${s.cpuLimit}%` : "—"}</td><td className="px-6 py-3 font-mono text-[11px] text-[#9da7ba]">{s.identifier}</td></tr>))}</tbody>
                     </table>
                   </div>
                 )}
@@ -103,7 +128,7 @@ export default async function DashboardPage() {
           )}
         </div>
       </section>
-      <footer className="bg-[#f5f5f7] border-t border-[#d6d6d6] py-4"><div className="max-w-[1200px] mx-auto px-6 md:px-10 text-[11px] text-[#707070]">© 2025 PteroControl · RLS · AES-256</div></footer>
+      <footer className="border-t border-[rgba(186,215,247,0.06)] bg-[rgba(186,214,247,0.015)] py-4"><div className="mx-auto max-w-[1200px] px-6 md:px-10 text-[11px] text-[#9da7ba]">© 2025 PteroControl · RLS · AES-256-CBC</div></footer>
     </div>
   );
 }
