@@ -31,7 +31,8 @@ export async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isAuthRoute = pathname === "/login" || pathname === "/register";
-  const isProtected = pathname.startsWith("/dashboard") || pathname.startsWith("/panels") || pathname.startsWith("/akun");
+  // /dashboard = etalase publik (pratinjau) — tidak dikunci. Yang dikunci hanya /panels, /akun, /admin
+  const isProtected = pathname.startsWith("/panels") || pathname.startsWith("/akun");
   const isAdminRoute = pathname.startsWith("/admin");
 
   // Unauthenticated -> redirect protected to /login
@@ -102,5 +103,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/panels/:path*", "/admin/:path*", "/akun/:path*", "/login", "/register"],
+  matcher: ["/dashboard", "/dashboard/:path*", "/panels/:path*", "/admin/:path*", "/akun/:path*", "/login", "/register"],
 };
