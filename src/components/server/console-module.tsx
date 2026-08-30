@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { Terminal } from "xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import "xterm/css/xterm.css";
 
 interface ConsoleModuleProps {
   server: any;
@@ -8,42 +11,145 @@ interface ConsoleModuleProps {
 }
 
 export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModuleProps) {
-  const wsRef = useRef<WebSocket | null>(null);
-  const [messages, setMessages] = useState<string[]>([]);
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const term = useRef<Terminal | null>(null);
+  const ws = useRef<WebSocket | null>(null);
   const [input, setInput] = useState("");
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (server.state !== "online") {
-      setMessages((prev) => [...prev, "[Server is offline]"]);
+    if (server.state === "offline") {
+      setError("Server is offline. Start the server to view the console.");
       return;
     }
 
-    const protocol = panelUrl.startsWith("https") ? "wss://" : "ws://";
-    const wsUrl = `${protocol}${new URL(panelUrl).host}/api/client/servers/${identifier}/websocket?token=`;
-    
-    setMessages((prev) => [...prev, "[Console requires WebSocket token from panel API]"]);
-    setMessages((prev) => [...prev, "[Use the panel directly for full console access]"]);
-    
-    setConnected(false);
-    setError("WebSocket console requires additional authentication token from the panel API");
+    if (!terminalRef.current) return;
 
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
+    // Initialize Terminal
+    term.current = new Terminal({
+      theme: {
+        background: '#ffffff',
+        foreground: '#1e293b',
+        cursor: '#1e293b',
+        black: '#000000',
+        red: '#e46d4c',
+        green: '#59e25d',
+        yellow: '#facc15',
+        blue: '#3b82f6',
+        magenta: '#d946ef',
+        cyan: '#06b6d4',
+        white: '#ffffff',
+      },
+      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+      fontSize: 13,
+      disableStdin: true,
+      convertEol: true,
+    });
+
+    const fitAddon = new FitAddon();
+    term.current.loadAddon(fitAddon);
+    term.current.open(terminalRef.current);
+    
+    // Slight delay to ensure DOM is ready for measurement
+    setTimeout(() => fitAddon.fit(), 10);
+
+    term.current.writeln("\x1b[33m[PteroControl]\x1b[0m Requesting console access...");
+
+    let isComponentMounted = true;
+
+    const connectWebSocket = async () => {
+      try {
+        const res = await fetch("/api/proxy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            panelId: server.id,
+            identifier,
+            path: "websocket",
+            method: "GET",
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to get WebSocket credentials");
+        }
+
+        const data = await res.json();
+        const token = data.data?.token;
+        const socketUrl = data.data?.socket;
+
+        if (!token || !socketUrl) throw new Error("Invalid WebSocket response from panel");
+
+        if (!isComponentMounted) return;
+
+        ws.current = new WebSocket(socketUrl);
+
+        ws.current.onopen = () => {
+          setConnected(true);
+          setError(null);
+          ws.current?.send(JSON.stringify({ event: "auth", args: [token] }));
+        };
+
+        ws.current.onmessage = (e) => {
+          try {
+            const payload = JSON.parse(e.data);
+            if (payload.event === "auth success") {
+              term.current?.writeln("\x1b[32m[PteroControl]\x1b[0m Authentication successful. Connecting to daemon...");
+              ws.current?.send(JSON.stringify({ event: "send logs", args: [] }));
+            }
+            if (payload.event === "console output") {
+              payload.args.forEach((log: string) => {
+                term.current?.writeln(log);
+              });
+            }
+            if (payload.event === "status") {
+              term.current?.writeln(`\x1b[33m[Daemon]\x1b[0m Server status: ${payload.args[0]}`);
+            }
+          } catch (err) {
+            console.error("WS Parse error", err);
+          }
+        };
+
+        ws.current.onerror = () => {
+          setError("WebSocket encountered an error.");
+          setConnected(false);
+        };
+
+        ws.current.onclose = () => {
+          setConnected(false);
+          term.current?.writeln("\x1b[31m[PteroControl]\x1b[0m Connection closed.");
+        };
+
+      } catch (err) {
+        if (!isComponentMounted) return;
+        setError(err instanceof Error ? err.message : "Failed to connect to console");
+        term.current?.writeln(`\x1b[31m[Error]\x1b[0m ${err instanceof Error ? err.message : "Connection failed"}`);
       }
     };
-  }, [server.state, identifier, panelUrl]);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    connectWebSocket();
+
+    const handleResize = () => {
+      fitAddon.fit();
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      isComponentMounted = false;
+      window.removeEventListener("resize", handleResize);
+      if (ws.current) {
+        ws.current.close();
+      }
+      if (term.current) {
+        term.current.dispose();
+      }
+    };
+  }, [server.state, server.id, identifier]);
 
   const sendMessage = () => {
-    if (!input.trim() || !connected) return;
-    setMessages((prev) => [...prev, `> ${input}`]);
+    if (!input.trim() || !connected || !ws.current) return;
+    ws.current.send(JSON.stringify({ event: "send command", args: [input] }));
     setInput("");
   };
 
@@ -57,13 +163,8 @@ export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModulePro
         </span>
       </div>
 
-      <div className="bg-white rounded-lg border border-deep-ink/5 p-4 font-mono text-caption text-deep-ink h-[400px] overflow-y-auto space-y-1 text-[13px]">
-        {messages.map((msg, i) => (
-          <div key={i} className={`${msg.startsWith("[") ? "text-slate italic" : msg.startsWith(">") ? "text-hi-yellow font-semibold" : ""}`}>
-            {msg}
-          </div>
-        ))}
-        <div ref={bottomRef} />
+      <div className="bg-white rounded-lg border border-deep-ink/5 p-4 overflow-hidden">
+        <div ref={terminalRef} className="h-[400px] w-full" />
       </div>
 
       {error && (
@@ -89,10 +190,6 @@ export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModulePro
           Send
         </button>
       </div>
-
-      <p className="mt-3 text-caption text-slate">
-        For full console access, use the panel directly or implement WebSocket with proper token authentication.
-      </p>
     </div>
   );
 }
