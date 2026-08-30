@@ -79,7 +79,14 @@ export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModulePro
         const token = data.data?.token;
         const socketUrl = data.data?.socket;
 
-        if (!token || !socketUrl) throw new Error("Invalid WebSocket response from panel");
+        term.current?.writeln("\x1b[36m[Debug]\x1b[0m Fetched credentials...");
+        
+        if (!token || !socketUrl) {
+          term.current?.writeln(`\x1b[31m[Debug]\x1b[0m Invalid response: ${JSON.stringify(data)}`);
+          throw new Error("Invalid WebSocket response from panel");
+        }
+        
+        term.current?.writeln(`\x1b[36m[Debug]\x1b[0m Connecting to ${socketUrl}...`);
 
         if (!isComponentMounted) return;
 
@@ -88,6 +95,7 @@ export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModulePro
         ws.current.onopen = () => {
           setConnected(true);
           setError(null);
+          term.current?.writeln("\x1b[32m[Debug]\x1b[0m WebSocket connected. Authenticating...");
           ws.current?.send(JSON.stringify({ event: "auth", args: [token] }));
         };
 
@@ -111,7 +119,9 @@ export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModulePro
           }
         };
 
-        ws.current.onerror = () => {
+        ws.current.onerror = (evt) => {
+          console.error("WS Error", evt);
+          term.current?.writeln("\x1b[31m[Debug]\x1b[0m WebSocket error occurred (Check console for CORS/Mixed Content).");
           setError("WebSocket encountered an error.");
           setConnected(false);
         };
