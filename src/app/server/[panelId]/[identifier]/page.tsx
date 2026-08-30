@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { logout } from "@/lib/actions/auth-actions";
 import { MobileMenu } from "@/components/mobile-menu";
-import { ServerControlForm } from "@/components/panel-forms";
+import { PowerModule } from "@/components/server/power-module";
 import { ConsoleModule } from "@/components/server/console-module";
 
 function TopNav({ email, isAdmin }: { email: string; isAdmin: boolean }) {
@@ -122,15 +122,7 @@ export default async function ServerDetailPage({ params }: { params: Promise<{ p
       <section className="flex-1 py-8">
         <div className="max-w-[800px] mx-auto px-6 md:px-10 space-y-6">
           
-          {/* Control Form Card */}
-          <div className="rounded-xl bg-surface-soft-meadow p-6 md:p-8 border border-deep-ink/5 shadow-sm">
-            <div className="mb-6 pb-6 border-b border-deep-ink/5">
-              <h2 className="font-hedvig-letters-serif font-bold text-heading-sm text-deep-ink">Server Controls</h2>
-              <p className="text-slate text-body-sm mt-1">Start, stop, and manage your server</p>
-            </div>
-            
-            <ServerControlForm server={sl} />
-          </div>
+          <PowerModule server={sl} identifier={sl.identifier} />
 
           {/* Console Module */}
           <ConsoleModule server={sl} identifier={sl.identifier} panelUrl={sl.linked_panels?.panel_url} />

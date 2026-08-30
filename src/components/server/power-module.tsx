@@ -4,14 +4,10 @@ import { ConfirmDialog, useToast } from "@/components/toast";
 
 interface PowerModuleProps {
   server: any;
-  serverData: any;
-  apiKey: string;
-  panelUrl: string;
   identifier: string;
-  serverLinkId: string;
 }
 
-export function PowerModule({ server, serverData, apiKey, panelUrl, identifier }: PowerModuleProps) {
+export function PowerModule({ server, identifier }: PowerModuleProps) {
   const { push } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
