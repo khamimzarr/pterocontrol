@@ -17,7 +17,7 @@ export function BackupsModule({ server, identifier }: BackupsModuleProps) {
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: "backups", method: "GET" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: "backups", method: "GET" }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -34,7 +34,7 @@ export function BackupsModule({ server, identifier }: BackupsModuleProps) {
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: "backups", method: "POST", data: {} }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: "backups", method: "POST", data: {} }),
       });
       if (!res.ok) throw new Error("Failed");
       push("Backup created", "ok");
@@ -47,7 +47,7 @@ export function BackupsModule({ server, identifier }: BackupsModuleProps) {
   };
 
   const downloadBackup = async (backupId: number) => {
-    window.open(`/api/proxy?panelId=${server.panel_id}&identifier=${identifier}&path=backups/${backupId}/download`, "_blank");
+    window.open(`/api/proxy?panelId=${server.id}&identifier=${identifier}&path=backups/${backupId}/download`, "_blank");
   };
 
   const deleteBackup = async (backupId: number) => {
@@ -55,7 +55,7 @@ export function BackupsModule({ server, identifier }: BackupsModuleProps) {
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: `backups/${backupId}`, method: "DELETE" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: `backups/${backupId}`, method: "DELETE" }),
       });
       if (!res.ok) throw new Error("Failed");
       push("Backup deleted", "ok");

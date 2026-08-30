@@ -18,7 +18,7 @@ export function SchedulesModule({ server, identifier }: SchedulesModuleProps) {
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: "schedules", method: "GET" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: "schedules", method: "GET" }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -34,7 +34,7 @@ export function SchedulesModule({ server, identifier }: SchedulesModuleProps) {
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: `schedules/${scheduleId}`, method: "PATCH", data: { is_active: active } }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: `schedules/${scheduleId}`, method: "PATCH", data: { is_active: active } }),
       });
       if (!res.ok) throw new Error("Failed");
       push(active ? "Schedule enabled" : "Schedule disabled", "ok");
@@ -49,7 +49,7 @@ export function SchedulesModule({ server, identifier }: SchedulesModuleProps) {
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: `schedules/${scheduleId}`, method: "DELETE" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: `schedules/${scheduleId}`, method: "DELETE" }),
       });
       if (!res.ok) throw new Error("Failed");
       push("Schedule deleted", "ok");

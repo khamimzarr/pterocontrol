@@ -32,7 +32,7 @@ export function FilesModule({ server, identifier, panelUrl }: FilesModuleProps) 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          panelId: server.panel_id,
+          panelId: server.id,
           identifier,
           path: `files/list?directory=${encodeURIComponent(path)}`,
           method: "GET",
@@ -74,7 +74,7 @@ export function FilesModule({ server, identifier, panelUrl }: FilesModuleProps) 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          panelId: server.panel_id,
+          panelId: server.id,
           identifier,
           path: `files/content?file=${encodeURIComponent(path)}`,
           method: "GET",
@@ -96,7 +96,7 @@ export function FilesModule({ server, identifier, panelUrl }: FilesModuleProps) 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          panelId: server.panel_id,
+          panelId: server.id,
           identifier,
           path: `files/content?file=${encodeURIComponent(selectedFile.path)}`,
           method: "PUT",
@@ -117,7 +117,7 @@ export function FilesModule({ server, identifier, panelUrl }: FilesModuleProps) 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          panelId: server.panel_id,
+          panelId: server.id,
           identifier,
           path: `files/delete?file=${encodeURIComponent(path)}`,
           method: "DELETE",

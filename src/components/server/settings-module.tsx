@@ -25,7 +25,7 @@ export function SettingsModule({ server, identifier, serverData }: SettingsModul
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: "settings", method: "GET" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: "settings", method: "GET" }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -44,7 +44,7 @@ export function SettingsModule({ server, identifier, serverData }: SettingsModul
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: "settings", method: "PUT", data: editedData }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: "settings", method: "PUT", data: editedData }),
       });
       if (!res.ok) throw new Error("Failed");
       push("Settings saved", "ok");

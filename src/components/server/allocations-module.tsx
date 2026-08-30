@@ -22,7 +22,7 @@ export function AllocationsModule({ server, identifier }: AllocationsModuleProps
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: "connections", method: "GET" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: "connections", method: "GET" }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -40,7 +40,7 @@ export function AllocationsModule({ server, identifier }: AllocationsModuleProps
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: `connections/${id}/primary`, method: "PATCH" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: `connections/${id}/primary`, method: "PATCH" }),
       });
       if (!res.ok) throw new Error("Failed");
       push("Primary allocation updated", "ok");
@@ -55,7 +55,7 @@ export function AllocationsModule({ server, identifier }: AllocationsModuleProps
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: `connections/${id}`, method: "DELETE" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: `connections/${id}`, method: "DELETE" }),
       });
       if (!res.ok) throw new Error("Failed");
       push("Allocation removed", "ok");

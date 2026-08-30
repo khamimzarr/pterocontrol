@@ -8,6 +8,7 @@ interface PowerModuleProps {
   apiKey: string;
   panelUrl: string;
   identifier: string;
+  serverLinkId: string;
 }
 
 export function PowerModule({ server, serverData, apiKey, panelUrl, identifier }: PowerModuleProps) {
@@ -27,7 +28,7 @@ export function PowerModule({ server, serverData, apiKey, panelUrl, identifier }
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          panelId: server.panel_id,
+          panelId: server.id,
           identifier,
           path: `signals/${signal}`,
           method: "POST",

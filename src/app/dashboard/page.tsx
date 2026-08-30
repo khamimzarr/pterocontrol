@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { decrypt } from "@/lib/encryption";
 import { aggregatePanels, type FetchPanelResult, type AggregatedServer } from "@/lib/pterodactyl";
 import { logout } from "@/lib/actions/auth-actions";
+import { syncServers } from "@/lib/actions/server-actions";
 import { MobileMenu } from "@/components/mobile-menu";
 import { DashboardTable } from "@/components/dashboard-table";
 import { RealtimePanels } from "@/components/realtime";
@@ -179,6 +180,16 @@ export default async function DashboardPage() {
     ok = results.filter((r) => r.ok).length;
   }
   const all = results.flatMap((r) => r.servers);
+  
+  // Sync servers to server_links for control features
+  await syncServers();
+  
+  // Fetch synced server_links for clickable cards
+  const { data: serverLinks } = await supabase
+    .from("server_links")
+    .select("id, identifier, name, state, memory_limit, cpu_limit, disk_limit, panel_id, linked_panels(panel_name)")
+    .eq("user_id", user.id);
+  
   return (
     <div className="min-h-screen bg-[#05060f] flex flex-col">
       <TopNav email={user.email} isAdmin={user.role === "ADMIN"} />
@@ -218,6 +229,36 @@ export default async function DashboardPage() {
                   </div>
                 ))}
               </div>
+              {/* Server control cards */}
+              {serverLinks && serverLinks.length > 0 ? (
+                <div className="mt-6">
+                  <p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba] mb-3">Server — klik untuk kontrol</p>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    {serverLinks.map((sl: any) => (
+                      <Link key={sl.id} href={`/server/${sl.id}/${sl.identifier}`} className="glass-card rounded-[16px] p-5 block hover:border-[rgba(186,215,247,0.18)] transition-colors group">
+                        <div className="flex justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-medium text-[13px] truncate text-white">{sl.name}</p>
+                            <p className="text-[11px] text-[#9da7ba] truncate">{sl.identifier}</p>
+                          </div>
+                          <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium border ${sl.state === "online" ? "bg-[rgba(40,200,64,0.12)] text-[#28c840] border-[rgba(40,200,64,0.20)]" : sl.state === "starting" ? "bg-[rgba(102,58,243,0.12)] text-[#a78bfa] border-[rgba(102,58,243,0.20)]" : sl.state === "stopping" ? "bg-[rgba(228,109,76,0.12)] text-[#e46d4c] border-[rgba(228,109,76,0.20)]" : "bg-[rgba(199,211,234,0.08)] text-[#9da7ba] border-[rgba(186,215,247,0.08)]"}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${sl.state === "online" ? "bg-[#28c840] animate-pulse-dot" : sl.state === "starting" ? "bg-[#663af3] animate-pulse-dot" : sl.state === "stopping" ? "bg-[#e46d4c]" : "bg-[#707070]"}`} />
+                            {sl.state?.toUpperCase() || "OFF"}
+                          </span>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-[11px] text-[#9da7ba]">RAM {sl.memory_limit ? sl.memory_limit + "MB" : "—"} · CPU {sl.cpu_limit ? sl.cpu_limit + "%" : "—"}</span>
+                          <span className="text-[11px] text-[#663af3] opacity-0 group-hover:opacity-100 transition-opacity">Kontrol →</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : hasPanels ? (
+                <div className="mt-4 rounded-[16px] bg-[rgba(5,6,15,0.82)] border border-[rgba(186,215,247,0.10)] p-6 text-center">
+                  <p className="text-[13px] text-[#9da7ba]">Syncing servers…</p>
+                </div>
+              ) : null}
               <div className="mt-4">
                 <DashboardTable servers={all} />
               </div>

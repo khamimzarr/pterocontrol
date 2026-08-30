@@ -20,7 +20,7 @@ export function DatabasesModule({ server, identifier }: DatabasesModuleProps) {
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: "databases", method: "GET" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: "databases", method: "GET" }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -39,7 +39,7 @@ export function DatabasesModule({ server, identifier }: DatabasesModuleProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          panelId: server.panel_id,
+          panelId: server.id,
           identifier,
           path: "databases",
           method: "POST",
@@ -60,7 +60,7 @@ export function DatabasesModule({ server, identifier }: DatabasesModuleProps) {
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ panelId: server.panel_id, identifier, path: `databases/${dbId}`, method: "DELETE" }),
+        body: JSON.stringify({ panelId: server.id, identifier, path: `databases/${dbId}`, method: "DELETE" }),
       });
       if (!res.ok) throw new Error("Failed");
       push("Database deleted", "ok");

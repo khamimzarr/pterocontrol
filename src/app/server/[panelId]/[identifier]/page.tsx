@@ -142,7 +142,7 @@ export default async function ServerDetailPage({ params }: { params: Promise<{ p
       {/* Module Content */}
       <main className="flex-1 py-6 bg-[#05060f]">
         <div className="mx-auto max-w-[1400px] px-6 md:px-10 space-y-6">
-          <PowerModule server={server} serverData={serverData} apiKey={apiKey} panelUrl={panel.panel_url} identifier={identifier} />
+          <PowerModule server={server} serverData={serverData} apiKey={apiKey} panelUrl={panel.panel_url} identifier={identifier} serverLinkId={server.id} />
           <ConsoleModule server={server} identifier={identifier} panelUrl={panel.panel_url} />
           <FilesModule server={server} identifier={identifier} panelUrl={panel.panel_url} />
           <DatabasesModule server={server} identifier={identifier} />
