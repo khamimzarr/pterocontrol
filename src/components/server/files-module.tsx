@@ -58,7 +58,6 @@ export function FilesModule({ server, identifier, panelUrl }: FilesModuleProps) 
     if (path.endsWith("/")) {
       listFiles(path);
     } else {
-      // Open file editor
       const file = files.find((f) => f.path === path);
       if (file) {
         setSelectedFile(file);
@@ -132,57 +131,57 @@ export function FilesModule({ server, identifier, panelUrl }: FilesModuleProps) 
   };
 
   return (
-    <div className="glass-card rounded-[16px] p-6">
+    <div className="rounded-xl bg-surface-soft-meadow p-6 md:p-8 border border-deep-ink/5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-medium text-[16px] text-white">Files</h2>
-        <button onClick={() => listFiles(currentPath)} className="pill-ghost rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Refresh</button>
+        <h2 className="font-hedvig-letters-serif font-bold text-heading-sm text-deep-ink">Files</h2>
+        <button onClick={() => listFiles(currentPath)} className="btn-secondary py-2 text-body-sm">Refresh</button>
       </div>
 
       {loading ? (
-        <div className="text-[13px] text-[#9da7ba] py-8 text-center">Loading...</div>
+        <div className="text-slate text-body-sm py-8 text-center">Loading...</div>
       ) : showEditor && selectedFile ? (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[12px] text-[#c7d3ea] font-mono">{selectedFile.path}</span>
+            <span className="text-body-sm text-deep-ink font-mono">{selectedFile.path}</span>
             <div className="flex gap-2">
-              <button onClick={() => setShowEditor(false)} className="pill-ghost rounded-full px-3 py-1.5 text-[12px] text-white">Cancel</button>
-              <button onClick={saveFile} className="flash-violet rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Save</button>
+              <button onClick={() => setShowEditor(false)} className="btn-ghost py-2 text-body-sm">Cancel</button>
+              <button onClick={saveFile} className="btn-primary py-2 text-body-sm">Save</button>
             </div>
           </div>
           <textarea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="w-full h-[500px] bg-[#0a0a14] border border-[rgba(186,215,247,0.12)] rounded-[10px] p-4 font-mono text-[12px] text-[#c7d3ea] resize-none"
+            className="w-full h-[500px] bg-white border border-deep-ink/10 rounded-lg p-4 font-mono text-body-sm text-deep-ink resize-none"
           />
         </div>
       ) : (
         <>
-          <div className="text-[11px] text-[#9da7ba] mb-3 font-mono">{currentPath}</div>
-          <div className="border border-[rgba(186,215,247,0.08)] rounded-[10px] overflow-hidden">
-            <table className="w-full text-left text-[13px]">
-              <thead className="bg-[rgba(186,214,247,0.04)] text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">
+          <div className="text-caption text-slate mb-3 font-mono">{currentPath}</div>
+          <div className="border border-deep-ink/5 rounded-lg overflow-hidden bg-white">
+            <table className="w-full text-left text-body-sm">
+              <thead className="bg-surface-canvas text-caption tracking-wide uppercase font-semibold text-slate">
                 <tr>
-                  <th className="px-4 py-2.5 font-normal">Name</th>
-                  <th className="px-4 py-2.5 font-normal hidden sm:table-cell">Size</th>
-                  <th className="px-4 py-2.5 font-normal hidden md:table-cell">Modified</th>
-                  <th className="px-4 py-2.5 font-normal text-right">Actions</th>
+                  <th className="px-4 py-3 font-medium">Name</th>
+                  <th className="px-4 py-3 font-medium hidden sm:table-cell">Size</th>
+                  <th className="px-4 py-3 font-medium hidden md:table-cell">Modified</th>
+                  <th className="px-4 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[rgba(186,215,247,0.06)]">
+              <tbody className="divide-y divide-deep-ink/5">
                 {files.length === 0 ? (
-                  <tr><td colSpan={4} className="px-4 py-8 text-center text-[#9da7ba]">Empty folder</td></tr>
+                  <tr><td colSpan={4} className="px-4 py-8 text-center text-slate">Empty folder</td></tr>
                 ) : files.map((file) => (
-                  <tr key={file.path} className="hover:bg-[rgba(186,214,247,0.04)] group">
-                    <td className="px-4 py-2.5">
-                      <button onClick={() => navigate(file.path)} className="text-[#d1e4fa] hover:text-white flex items-center gap-2">
+                  <tr key={file.path} className="hover:bg-surface-soft-meadow group">
+                    <td className="px-4 py-3">
+                      <button onClick={() => navigate(file.path)} className="text-deep-ink hover:text-charcoal flex items-center gap-2 font-medium">
                         <span>{file.type === "folder" ? "📁" : "📄"}</span>
                         {file.name}
                       </button>
                     </td>
-                    <td className="px-4 py-2.5 text-[#9da7ba] hidden sm:table-cell">{file.size ? `${(file.size / 1024).toFixed(1)} KB` : "—"}</td>
-                    <td className="px-4 py-2.5 text-[#9da7ba] text-[11px] hidden md:table-cell">{file.modified || "—"}</td>
-                    <td className="px-4 py-2.5 text-right">
-                      <button onClick={() => deleteFile(file.path)} className="text-[#e46d4c] hover:text-[#ff7d6a] text-[12px] opacity-0 group-hover:opacity-100 transition-opacity">Delete</button>
+                    <td className="px-4 py-3 text-caption text-slate hidden sm:table-cell">{file.size ? `${(file.size / 1024).toFixed(1)} KB` : "—"}</td>
+                    <td className="px-4 py-3 text-caption text-slate hidden md:table-cell">{file.modified || "—"}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button onClick={() => deleteFile(file.path)} className="text-[#e46d4c] hover:text-[#d33] text-caption font-medium opacity-0 group-hover:opacity-100 transition-opacity">Delete</button>
                     </td>
                   </tr>
                 ))}

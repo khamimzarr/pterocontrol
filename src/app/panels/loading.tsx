@@ -1,13 +1,48 @@
-export default function Loading() {
+export default function PanelsLoading() {
   return (
-    <div className="min-h-screen bg-[#05060f] flex flex-col">
-      <div className="h-[52px] border-b border-[rgba(186,215,247,0.08)] bg-[rgba(5,6,15,0.65)] animate-pulse" />
-      <div className="max-w-[1200px] mx-auto w-full px-6 md:px-10 py-6">
-        <div className="h-5 w-24 rounded bg-[rgba(186,214,247,0.10)] animate-pulse" />
-        <div className="mt-4 grid gap-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-[88px] rounded-[16px] bg-[rgba(186,214,247,0.04)] border border-[rgba(186,215,247,0.06)] animate-pulse" />)}
+    <div className="min-h-screen bg-surface-canvas flex flex-col">
+      {/* Loading Navbar */}
+      <nav className="navbar border-b border-deep-ink/5 bg-white animate-pulse">
+        <div className="max-w-[1200px] mx-auto px-6 h-[60px]">
+          <div className="flex items-center justify-between gap-4">
+            <div className="w-32 h-8 rounded-lg bg-surface-soft-meadow"></div>
+            <div className="hidden md:flex items-center gap-8">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-8 w-24 rounded-full bg-surface-soft-meadow"></div>
+              ))}
+            </div>
+            <div className="w-24 h-8 rounded-full bg-surface-soft-meadow"></div>
+          </div>
         </div>
-      </div>
+      </nav>
+      
+      {/* Loading Content */}
+      <main className="flex-1 py-8">
+        <div className="max-w-[1200px] mx-auto px-6 space-y-6">
+          {/* Header Skeleton */}
+          <div className="space-y-2">
+            <div className="h-4 w-32 rounded bg-surface-soft-meadow"></div>
+            <div className="h-8 w-48 rounded bg-surface-soft-meadow"></div>
+            <div className="h-4 w-72 rounded bg-surface-soft-meadow"></div>
+          </div>
+          
+          {/* Add panel form skeleton */}
+          <div className="rounded-xl bg-surface-soft-meadow p-6 border border-deep-ink/5 animate-pulse">
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-12 w-full rounded-lg bg-surface-canvas"></div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Panel list skeleton */}
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-20 rounded-xl bg-surface-soft-meadow animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

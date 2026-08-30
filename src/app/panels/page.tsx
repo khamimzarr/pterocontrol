@@ -7,26 +7,40 @@ import { MobileMenu } from "@/components/mobile-menu";
 import { AddPanelForm, EditPanelForm, DeletePanelButton } from "@/components/panel-forms";
 import { RealtimePanels } from "@/components/realtime";
 
-function TopNav({ email, isAdmin }: { email: string; isAdmin: boolean }) {
+function TopNav({ email }: { email: string }) {
   const links = [
-    { href: "/dashboard", label: "Dasbor" },
-    { href: "/panels", label: "Panel", active: true },
-    ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
-    { href: "/akun", label: "Akun" },
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/panels", label: "Panels", active: true },
+    { href: "/admin", label: "Admin" },
+    { href: "/akun", label: "Account" },
   ];
+  
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-[16px] bg-[rgba(5,6,15,0.65)] border-b border-[rgba(186,215,247,0.08)]">
-      <div className="mx-auto max-w-[1200px] px-6 h-[52px] flex items-center justify-between gap-2">
-        <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0"><span className="w-7 h-7 rounded-full grid place-items-center bg-[rgba(186,214,247,0.08)] border border-[rgba(186,215,247,0.12)]"><span className="w-2.5 h-2.5 rounded-full bg-[#663af3] animate-shimmer-dot" /></span><span className="font-medium text-[15px] text-[#d1e4fa]">PteroControl</span><span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium text-[#c7d3ea] bg-[rgba(199,211,234,0.10)] border border-[rgba(186,215,247,0.06)]">panel</span></Link>
-        <nav className="hidden md:flex items-center gap-1 text-[13px] font-medium text-[#c7d3ea]">
-          <Link href="/dashboard" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Dasbor</Link>
-          <Link href="/panels" className="px-3 py-1.5 rounded-full bg-[rgba(199,211,234,0.12)] text-white">Panel</Link>
-          {isAdmin && <Link href="/admin" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Admin</Link>}
-          <Link href="/akun" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Akun</Link>
+    <nav className="navbar">
+      <div className="nav-container">
+        <Link href="/dashboard" className="nav-logo">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="14" stroke="#ffe228" strokeWidth="3"/>
+            <path d="M16 8l8 4-8 4-8-4 8-4z" fill="#130e30"/>
+          </svg>
+          Pterodactyl
+        </Link>
+        
+        <nav className="hidden md:flex items-center gap-32">
+          <Link href="/dashboard" className="px-4 py-2 rounded-full bg-surface-canvas text-deep-ink font-medium text-body-sm">Dashboard</Link>
+          <Link href="/panels" className="px-4 py-2 rounded-full bg-hi-yellow text-deep-ink font-semibold text-body-sm shadow-sm">Panels</Link>
+          <Link href="/admin" className="nav-link">Admin</Link>
+          <Link href="/akun" className="nav-link">Account</Link>
         </nav>
-        <div className="flex items-center gap-2"><span className="hidden sm:inline text-[11px] text-[#9da7ba] truncate max-w-[120px]">{email}</span><form action={logout} className="hidden sm:block"><button className="pill-ghost rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Keluar</button></form><MobileMenu links={links} /></div>
+        
+        <div className="nav-actions">
+          <span className="text-caption text-slate hidden sm:inline truncate max-w-[120px]">{email}</span>
+          <form action={logout} className="hidden sm:block">
+            <button className="btn-ghost text-body-sm">Log Out</button>
+          </form>
+        </div>
       </div>
-    </header>
+    </nav>
   );
 }
 
@@ -35,42 +49,91 @@ export default async function PanelsPage() {
   const supabase = await createClient();
   const { data: panels } = await supabase.from("linked_panels").select("id, panel_name, panel_url, created_at").eq("user_id", user.id).order("created_at");
   const count = panels?.length ?? 0;
+  
   return (
-    <div className="min-h-screen bg-[#05060f] flex flex-col">
-      <TopNav email={user.email} isAdmin={user.role === "ADMIN"} />
+    <div className="min-h-screen bg-surface-canvas flex flex-col">
+      <TopNav email={user.email} />
+      
       <RealtimePanels userId={user.id} />
-      <section className="relative overflow-hidden border-b border-[rgba(186,215,247,0.06)]">
-        <div className="absolute inset-0 bg-grid opacity-[0.22] pointer-events-none" aria-hidden />
-        <div className="relative mx-auto max-w-[1200px] px-6 md:px-10 py-7">
-          <p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">{count} panel</p>
-          <h1 className="mt-1 font-[var(--font-aeonikpro)] font-medium text-[26px] leading-none tracking-[-0.02em] text-[#d8ecf8]">Panel</h1>
-          <p className="mt-2 text-[13px] text-[#9da7ba]">URL + API key. Terenkripsi.</p>
+      
+      {/* Page Header */}
+      <section className="border-b border-deep-ink/5 bg-white">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-7">
+          <p className="text-caption font-semibold tracking-wide uppercase text-slate mb-2">{count} Panel{count !== 1 ? 's' : ''}</p>
+          <h1 className="font-hedvig-letters-serif font-bold text-heading-lg text-deep-ink mb-3">Connected Panels</h1>
+          <p className="text-slate text-body-sm">URL + API key. Encrypted with AES-256.</p>
         </div>
       </section>
-      <section className="flex-1 py-6 bg-[#05060f]">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-10 space-y-4">
-          <div className="rounded-[16px] bg-[rgba(5,6,15,0.96)] border border-[rgba(186,215,247,0.12)] p-6 shadow-[inset_0_1px_1px_rgba(216,236,248,0.20),0_24px_48px_rgba(0,0,0,0.45)]">
-            <div className="flex items-center gap-2"><span className="w-8 h-8 rounded-full grid place-items-center bg-[#663af3] text-white font-medium text-[12px] shadow-[0_0_16px_rgba(102,58,243,0.45)]">+</span><div><h2 className="font-medium text-[15px] leading-none text-white">Tambah panel</h2><p className="text-[11px] text-[#9da7ba] font-[var(--font-dotdigital)] tracking-[0.06em] uppercase">Client key — bukan Application</p></div></div>
+      
+      {/* Main Content */}
+      <section className="flex-1 py-8">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10 space-y-4">
+          
+          {/* Add New Panel Form */}
+          <div className="rounded-xl bg-surface-soft-meadow p-6 md:p-8 border border-deep-ink/5 shadow-sm">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full grid place-items-center bg-hi-yellow text-deep-ink font-bold text-lg shadow-sm">+</div>
+              <div>
+                <h2 className="font-hedvig-letters-serif font-bold text-heading-sm text-deep-ink">Add New Panel</h2>
+                <p className="text-slate text-caption mt-1 tracking-wide uppercase">Client key — not Application token</p>
+              </div>
+            </div>
+            
             <AddPanelForm />
           </div>
+          
+          {/* Empty State */}
           {count === 0 ? (
-            <div className="rounded-[16px] bg-[rgba(5,6,15,0.82)] border border-[rgba(186,215,247,0.08)] p-7 text-center"><p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Kosong</p><p className="mt-1 font-medium text-[15px] text-white">Belum ada panel.</p></div>
+            <div className="rounded-xl bg-white p-8 text-center border border-deep-ink/5">
+              <p className="text-caption font-medium tracking-wide uppercase text-slate mb-2">No Panels</p>
+              <p className="font-medium text-subheading text-deep-ink mb-1">还没有面板</p>
+              <p className="text-slate text-body-sm mt-2">Add your first panel URL and API key above.</p>
+            </div>
           ) : (
-            <div className="grid gap-3">
-              {panels!.map((p) => (
-                <div key={p.id} className="glass-card rounded-[16px] p-5">
-                  <div className="flex justify-between gap-3"><div className="min-w-0"><h3 className="font-medium text-[14px] truncate text-white">{p.panel_name}</h3><p className="text-[11px] text-[#9da7ba] truncate font-mono">{p.panel_url}</p><p className="text-[11px] text-[#9da7ba]">{new Date(p.created_at).toLocaleDateString("id-ID")}</p></div><DeletePanelButton id={p.id} name={p.panel_name} /></div>
-                  <details className="mt-3 group"><summary className="text-[13px] text-[#b6d9fc] cursor-pointer hover:text-white list-none inline-flex items-center gap-1">Edit <span className="group-open:rotate-90 transition-transform">›</span></summary>
-                    <EditPanelForm id={p.id} name={p.panel_name} url={p.panel_url} />
+            /* Existing Panels Grid */
+            <div className="grid gap-4">
+              {panels?.map((p) => (
+                <div key={p.id} className="rounded-xl bg-white p-5 md:p-6 border border-deep-ink/5 hover:border-deep-ink/10 transition-colors">
+                  <div className="flex justify-between gap-4 items-start">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium text-body text-deep-ink truncate">{p.panel_name}</h3>
+                      <p className="text-caption text-slate font-mono mt-1 break-all">{p.panel_url}</p>
+                      <p className="text-caption text-slate mt-1">Added {new Date(p.created_at).toLocaleDateString()}</p>
+                    </div>
+                    
+                    <DeletePanelButton id={p.id} name={p.panel_name} />
+                  </div>
+                  
+                  <details className="mt-4 group pt-4 border-t border-deep-ink/5">
+                    <summary className="text-body-sm text-hi-yellow cursor-pointer hover:text-deep-ink inline-flex items-center gap-2 list-none">
+                      Edit Details <span className="transition-transform group-open:rotate-90">›</span>
+                    </summary>
+                    <div className="mt-4 pt-4 border-t border-deep-ink/5">
+                      <EditPanelForm id={p.id} name={p.panel_name} url={p.panel_url} />
+                    </div>
                   </details>
                 </div>
               ))}
             </div>
           )}
-          <div className="rounded-[16px] bg-[#663af3] p-5 flex justify-between items-center gap-4 shadow-[0_8px_24px_rgba(102,58,243,0.35)]"><p className="font-medium text-[14px] text-white">Lihat dasbor</p><Link href="/dashboard" className="shrink-0 rounded-full bg-white text-[#05060f] text-[12px] font-medium px-4 py-2">Dasbor →</Link></div>
+          
+          {/* Dashboard CTA */}
+          <div className="rounded-xl bg-gradient-to-br from-hi-yellow to-[#fcd34d] p-6 flex justify-between items-center gap-4 shadow-md">
+            <div>
+              <p className="font-bold text-subheading text-deep-ink">View Dashboard</p>
+              <p className="text-caption text-deep-ink opacity-75 mt-1">See all your connected servers</p>
+            </div>
+            <Link href="/dashboard" className="shrink-0 rounded-full bg-white text-deep-ink text-caption font-semibold px-6 py-3 shadow-sm hover:bg-opacity-90 transition-colors">
+              Dashboard →
+            </Link>
+          </div>
         </div>
       </section>
-      <footer className="border-t border-[rgba(186,215,247,0.06)] bg-[rgba(186,214,247,0.015)] py-4"><div className="mx-auto max-w-[1200px] px-6 md:px-10 text-[11px] text-[#9da7ba]">© 2025 PteroControl · RLS · Realtime</div></footer>
+      
+      {/* Footer */}
+      <footer className="py-4 text-center text-caption text-slate border-t border-deep-ink/5 bg-white">
+        © 2026 Pterodactyl Control Panel · Connected Panels
+      </footer>
     </div>
   );
 }

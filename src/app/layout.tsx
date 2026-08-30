@@ -1,23 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Inter, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/toast";
 
-const untitledSans = Inter({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-untitled-sans",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600"],
   display: "swap",
 });
-const aeonikPro = Space_Grotesk({
+
+const hedvigLetters = DM_Serif_Display({
   subsets: ["latin"],
-  variable: "--font-aeonikpro",
-  weight: ["400", "500"],
-  display: "swap",
-});
-const dotDigital = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-dotdigital",
+  variable: "--font-hedvig-letters-serif",
   weight: ["400"],
   display: "swap",
 });
@@ -25,45 +20,45 @@ const dotDigital = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://pterocontrol.vercel.app"),
   title: {
-    default: "PteroControl — Satu dasbor untuk semua panel",
-    template: "%s · PteroControl",
+    default: "Pterodactyl Control Panel — Deploy & Manage Game Servers Effortlessly",
+    template: "%s · Pterodactyl",
   },
-  description: "Aggregator Pterodactyl. Banyak panel jadi satu tabel. API key AES-256-CBC, RLS. Butuh approval admin.",
-  applicationName: "PteroControl",
-  keywords: ["Pterodactyl", "Panel", "Aggregator", "Game Server", "Next.js", "Supabase"],
-  authors: [{ name: "PteroControl" }],
-  creator: "PteroControl",
+  description: "Powerful control panel for game server management. Intuitive interface, robust features, and built to scale.",
+  applicationName: "Pterodactyl",
+  keywords: ["Pterodactyl", "Game Server", "Control Panel", "Server Management", "Next.js", "Vercel"],
+  authors: [{ name: "Pterodactyl" }],
+  creator: "Pterodactyl",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/icon.svg" }],
   },
   openGraph: {
     type: "website",
-    locale: "id_ID",
+    locale: "en_US",
     url: "https://pterocontrol.vercel.app",
-    siteName: "PteroControl",
-    title: "PteroControl — Satu dasbor untuk semua panel",
-    description: "Aggregator Pterodactyl. Banyak panel jadi satu tabel. Terenkripsi.",
-    images: [{ url: "/og.svg", width: 1200, height: 630, alt: "PteroControl" }],
+    siteName: "Pterodactyl",
+    title: "Pterodactyl Control Panel — Deploy your game servers effortlessly",
+    description: "Deploy your game servers with ease. Powerful, intuitive, and built for scale.",
+    images: [{ url: "/og.svg", width: 1200, height: 630, alt: "Pterodactyl" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PteroControl — Satu dasbor untuk semua panel",
-    description: "Aggregator Pterodactyl. Satu dasbor untuk semua server.",
+    title: "Pterodactyl Control Panel — Deploy & Manage Game Servers Effortlessly",
+    description: "Powerful control panel for game server management.",
     images: ["/og.svg"],
   },
   robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#05060f",
-  colorScheme: "dark",
+  themeColor: "#f9fbf2",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${untitledSans.variable} ${aeonikPro.variable} ${dotDigital.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#05060f] text-[#d1e4fa] selection:bg-[rgba(102,58,243,0.35)]">
+    <html lang="en" className={`${inter.variable} ${hedvigLetters.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-surface-canvas text-deep-ink selection:bg-[rgba(255,226,40,0.35)]">
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

@@ -66,28 +66,28 @@ export function AllocationsModule({ server, identifier }: AllocationsModuleProps
   };
 
   return (
-    <div className="glass-card rounded-[16px] p-6">
+    <div className="rounded-xl bg-surface-soft-meadow p-6 md:p-8 border border-deep-ink/5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-medium text-[16px] text-white">Allocations</h2>
-        <button onClick={fetchAllocations} className="pill-ghost rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Refresh</button>
+        <h2 className="font-hedvig-letters-serif font-bold text-heading-sm text-deep-ink">Allocations</h2>
+        <button onClick={fetchAllocations} className="btn-secondary py-2 text-body-sm">Refresh</button>
       </div>
 
       {loading ? (
-        <div className="text-[#9da7ba] text-[13px] py-8 text-center">Loading...</div>
+        <div className="text-slate text-body-sm py-8 text-center">Loading...</div>
       ) : (
         <div className="space-y-2">
           {allocations.length === 0 ? (
-            <div className="text-[#9da7ba] text-[13px] py-8 text-center">No allocations found</div>
+            <div className="text-slate text-body-sm py-8 text-center">No allocations found</div>
           ) : (
             allocations.map((alloc: any) => (
-              <div key={alloc.id} className={`flex items-center justify-between p-3 border rounded-[10px] ${alloc.is_default ? "bg-[rgba(102,58,243,0.08)] border-[rgba(102,58,243,0.2)]" : "bg-[rgba(199,211,234,0.04)] border-[rgba(186,215,247,0.08)]"}`}>
+              <div key={alloc.id} className={`flex items-center justify-between p-4 border rounded-lg ${alloc.is_default ? "bg-hi-yellow/10 border-hi-yellow/30" : "bg-white border-deep-ink/5"}`}>
                 <div className="flex items-center gap-3">
-                  <span className="text-[13px] text-white font-mono">{alloc.ip}:{alloc.port}</span>
-                  {alloc.is_default && <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#663af3] text-white">PRIMARY</span>}
+                  <span className="text-body text-deep-ink font-mono">{alloc.ip}:{alloc.port}</span>
+                  {alloc.is_default && <span className="px-2.5 py-0.5 rounded-full text-caption font-semibold bg-hi-yellow text-deep-ink">PRIMARY</span>}
                 </div>
                 <div className="flex gap-2">
-                  {!alloc.is_default && <button onClick={() => setPrimary(alloc.id)} className="pill-ghost rounded-full px-3 py-1 text-[11px] text-white">Set Primary</button>}
-                  <button onClick={() => deleteAllocation(alloc.id)} className="text-[#e46d4c] hover:text-[#ff7d6a] text-[12px]">Delete</button>
+                  {!alloc.is_default && <button onClick={() => setPrimary(alloc.id)} className="btn-secondary py-1.5 text-body-sm">Set Primary</button>}
+                  <button onClick={() => deleteAllocation(alloc.id)} className="text-[#e46d4c] hover:text-[#d33] text-body-sm font-medium">Delete</button>
                 </div>
               </div>
             ))

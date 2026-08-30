@@ -57,16 +57,23 @@ export function PowerModule({ server, serverData, apiKey, panelUrl, identifier }
     { label: "Kill", action: "kill", color: "orange" as const, disabled: !state },
   ];
 
+  const actionStyles: Record<string, string> = {
+    green: "btn-primary",
+    red: "rounded-full bg-[#e46d4c]/10 border border-[#e46d4c]/30 text-[#e46d4c] hover:bg-[#e46d4c]/20 transition-colors",
+    yellow: "btn-secondary",
+    orange: "rounded-full bg-surface-soft-meadow border border-deep-ink/10 text-slate hover:bg-surface-canvas transition-colors",
+  };
+
   return (
     <div className="space-y-6">
-      <div className="glass-card rounded-[16px] p-6">
-        <h2 className="font-medium text-[16px] text-white mb-4">Power Control</h2>
+      <div className="rounded-xl bg-surface-soft-meadow p-6 md:p-8 border border-deep-ink/5 shadow-sm">
+        <h2 className="font-hedvig-letters-serif font-bold text-heading-sm text-deep-ink mb-6">Power Control</h2>
         
         {/* Status */}
         <div className="flex items-center gap-3 mb-6">
-          <span className={`w-3 h-3 rounded-full ${state === "online" ? "bg-[#28c840] animate-pulse-dot" : state === "starting" ? "bg-[#663af3] animate-pulse-dot" : state === "stopping" ? "bg-[#e46d4c]" : "bg-[#707070]"}`} />
-          <span className="text-[14px] text-[#c7d3ea] capitalize">{state || "unknown"}</span>
-          <span className="text-[12px] text-[#9da7ba] ml-2">State ID: {server.identifier}</span>
+          <span className={`w-3 h-3 rounded-full ${state === "online" ? "bg-[#59e25d] animate-pulse-dot" : state === "starting" ? "bg-hi-yellow animate-pulse-dot" : state === "stopping" ? "bg-[#e46d4c]" : "bg-slate"}`} />
+          <span className="text-body text-deep-ink font-medium capitalize">{state || "unknown"}</span>
+          <span className="text-caption text-slate ml-2">State ID: {server.identifier}</span>
         </div>
 
         {/* Actions */}
@@ -76,12 +83,7 @@ export function PowerModule({ server, serverData, apiKey, panelUrl, identifier }
               key={act.action}
               onClick={() => sendSignal(act.action)}
               disabled={loading !== null || act.disabled}
-              className={`rounded-[10px] py-3 px-4 text-[13px] font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
-                act.color === "green" ? "flash-violet" :
-                act.color === "red" ? "bg-[rgba(228,109,76,0.12)] border border-[rgba(228,109,76,0.22)] text-[#e46d4c] hover:bg-[rgba(228,109,76,0.18)]" :
-                act.color === "yellow" ? "bg-[rgba(199,211,234,0.08)] border border-[rgba(186,215,247,0.12)] text-[#d1e4fa] hover:bg-[rgba(199,211,234,0.12)]" :
-                "bg-[rgba(228,109,76,0.08)] border border-[rgba(228,109,76,0.15)] text-[#e46d4c] hover:bg-[rgba(228,109,76,0.14)]"
-              }`}
+              className={`py-3 px-4 text-body-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed ${actionStyles[act.color]}`}
             >
               {loading === act.action ? "..." : act.label}
             </button>
@@ -92,7 +94,7 @@ export function PowerModule({ server, serverData, apiKey, panelUrl, identifier }
       <ConfirmDialog
         open={confirmAction === "start"}
         title="Start server?"
-        desc="Server akan dinyalakan."
+        desc="The server will be powered on."
         confirmLabel="Start"
         onClose={() => setConfirmAction(null)}
         onConfirm={() => confirmSignal("start")}
@@ -100,7 +102,7 @@ export function PowerModule({ server, serverData, apiKey, panelUrl, identifier }
       <ConfirmDialog
         open={confirmAction === "stop"}
         title="Stop server?"
-        desc="Server akan dimatikan. Process berjalan akan dihentikan."
+        desc="The server will be powered off. Running processes will be stopped."
         confirmLabel="Stop"
         onClose={() => setConfirmAction(null)}
         onConfirm={() => confirmSignal("stop")}
@@ -108,7 +110,7 @@ export function PowerModule({ server, serverData, apiKey, panelUrl, identifier }
       <ConfirmDialog
         open={confirmAction === "restart"}
         title="Restart server?"
-        desc="Server akan di-restart. Akan downtime sebentar."
+        desc="The server will be restarted. Brief downtime expected."
         confirmLabel="Restart"
         onClose={() => setConfirmAction(null)}
         onConfirm={() => confirmSignal("restart")}
@@ -116,7 +118,7 @@ export function PowerModule({ server, serverData, apiKey, panelUrl, identifier }
       <ConfirmDialog
         open={confirmAction === "kill"}
         title="Kill server?"
-        desc="Process akan dihentikan paksa. Data mungkin hilang."
+        desc="The process will be force-stopped. Data may be lost."
         confirmLabel="Kill"
         onClose={() => setConfirmAction(null)}
         onConfirm={() => confirmSignal("kill")}

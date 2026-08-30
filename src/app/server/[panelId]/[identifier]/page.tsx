@@ -1,167 +1,177 @@
 export const dynamic = "force-dynamic";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { requireApprovedUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { decrypt } from "@/lib/encryption";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 import { logout } from "@/lib/actions/auth-actions";
 import { MobileMenu } from "@/components/mobile-menu";
-import { PowerModule } from "@/components/server/power-module";
-import { ConsoleModule } from "@/components/server/console-module";
-import { FilesModule } from "@/components/server/files-module";
-import { DatabasesModule } from "@/components/server/databases-module";
-import { BackupsModule } from "@/components/server/backups-module";
-import { SchedulesModule } from "@/components/server/schedules-module";
-import { SettingsModule } from "@/components/server/settings-module";
-import { AllocationsModule } from "@/components/server/allocations-module";
-
-interface Tab { id: string; label: string; icon: string; }
-const TABS: Tab[] = [
-  { id: "power", label: "Power", icon: "⏻" },
-  { id: "console", label: "Console", icon: "⟩_" },
-  { id: "files", label: "Files", icon: "📁" },
-  { id: "databases", label: "Databases", icon: "🗄" },
-  { id: "backups", label: "Backups", icon: "↕" },
-  { id: "schedules", label: "Schedules", icon: "⏲" },
-  { id: "settings", label: "Settings", icon: "⚙" },
-  { id: "allocations", label: "Allocations", icon: "◈" },
-];
+import { ServerControlForm } from "@/components/panel-forms";
 
 function TopNav({ email, isAdmin }: { email: string; isAdmin: boolean }) {
   const links = [
-    { href: "/dashboard", label: "Dasbor" },
-    { href: "/panels", label: "Panel" },
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/panels", label: "Panels" },
     ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
-    { href: "/akun", label: "Akun" },
+    { href: "/akun", label: "Account" },
   ];
+  
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-[16px] bg-[rgba(5,6,15,0.65)] border-b border-[rgba(186,215,247,0.08)]">
-      <div className="mx-auto max-w-[1400px] px-6 h-[52px] flex items-center justify-between gap-2">
-        <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0">
-          <span className="w-7 h-7 rounded-full grid place-items-center bg-[rgba(186,214,247,0.08)] border border-[rgba(186,215,247,0.12)]"><span className="w-2.5 h-2.5 rounded-full bg-[#663af3] animate-shimmer-dot" /></span>
-          <span className="font-medium text-[15px] text-[#d1e4fa]">PteroControl</span>
+    <nav className="navbar">
+      <div className="nav-container">
+        <Link href="/dashboard" className="nav-logo">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="14" stroke="#ffe228" strokeWidth="3"/>
+            <path d="M16 8l8 4-8 4-8-4 8-4z" fill="#130e30"/>
+          </svg>
+          Pterodactyl
         </Link>
-        <nav className="hidden md:flex items-center gap-1 text-[13px] font-medium text-[#c7d3ea]">
-          <Link href="/dashboard" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Dasbor</Link>
-          <Link href="/panels" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Panel</Link>
-          {isAdmin && <Link href="/admin" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Admin</Link>}
-          <Link href="/akun" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Akun</Link>
+        
+        <nav className="hidden md:flex items-center gap-32">
+          <Link href="/dashboard" className="px-4 py-2 rounded-full bg-surface-canvas text-deep-ink font-medium text-body-sm">Dashboard</Link>
+          <Link href="/panels" className="nav-link">Panels</Link>
+          {isAdmin && <Link href="/admin" className="nav-link">Admin</Link>}
+          <Link href="/akun" className="nav-link">Account</Link>
         </nav>
-        <div className="flex items-center gap-2">
-          <span className="hidden sm:inline text-[11px] text-[#9da7ba] truncate max-w-[140px]">{email}</span>
-          <form action={logout} className="hidden sm:block"><button className="pill-ghost rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Keluar</button></form>
-          <MobileMenu links={links} />
+        
+        <div className="nav-actions">
+          <span className="text-caption text-slate hidden sm:inline truncate max-w-[120px]">{email}</span>
+          <form action={logout} className="hidden sm:block">
+            <button className="btn-ghost text-body-sm">Log Out</button>
+          </form>
         </div>
       </div>
-    </header>
+    </nav>
   );
 }
 
 export default async function ServerDetailPage({ params }: { params: Promise<{ panelId: string; identifier: string }> }) {
-  const { panelId, identifier } = await params;
+  const resolvedParams = await params;
   const user = await requireApprovedUser();
   const supabase = await createClient();
-
-  // Get server link with panel info
-  const { data: serverRaw } = await supabase
+  
+  const { data: sl } = await supabase
     .from("server_links")
-    .select("*, linked_panels(panel_name, panel_url, encrypted_api_key)")
-    .eq("id", panelId)
+    .select("*")
+    .eq("id", resolvedParams.panelId)
     .eq("user_id", user.id)
     .single();
-
-  if (!serverRaw || !((serverRaw as any).linked_panels)) {
-    notFound();
-  }
-
-  const server = serverRaw as any;
-  const panel = server.linked_panels;
   
-  let apiKey: string;
-  try {
-    apiKey = decrypt(panel.encrypted_api_key);
-  } catch {
-    notFound();
+  if (!sl) {
+    redirect("/dashboard?error=server-not-found");
   }
-
-  // Fetch fresh server data from panel API
-  let serverData: any = null;
-  try {
-    const res = await fetch(`${panel.panel_url}/api/client/servers/${identifier}`, {
-      headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
-      signal: AbortSignal.timeout(10000),
-      cache: "no-store",
-    });
-    if (res.ok) {
-      serverData = await res.json();
-    }
-  } catch {
-    // Continue without fresh data
-  }
-
+  
+  // Determine status badge styling
+  const isOnline = sl.state === "online";
+  const isStarting = sl.state === "starting";
+  const isStopping = sl.state === "stopping";
+  
+  let statusBadgeClass = "bg-white text-gray-500 border border-gray-200";
+  if (isOnline) statusBadgeClass = "bg-[#59e25d]/10 text-[#59e25d] border border-[#59e25d]";
+  if (isStarting) statusBadgeClass = "bg-hi-yellow/10 text-deep-ink border border-hi-yellow";
+  if (isStopping) statusBadgeClass = "bg-[#e46d4c]/10 text-[#e46d4c] border border-[#e46d4c]";
+  
+  const statusText = isOnline ? "ONLINE" : isStarting ? "STARTING" : isStopping ? "STOPPING" : "OFFLINE";
+  
   return (
-    <div className="min-h-screen bg-[#05060f] flex flex-col">
+    <div className="min-h-screen bg-surface-canvas flex flex-col">
       <TopNav email={user.email} isAdmin={user.role === "ADMIN"} />
       
-      {/* Header */}
-      <section className="border-b border-[rgba(186,215,247,0.06)] bg-[rgba(5,6,15,0.5)]">
-        <div className="mx-auto max-w-[1400px] px-6 py-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      {/* Page Header */}
+      <section className="border-b border-deep-ink/5 bg-white">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-7">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-[11px] text-[#9da7ba] font-[var(--font-dotdigital)] tracking-[0.06em] uppercase">
-                <Link href="/dashboard" className="hover:text-[#d1e4fa]">Dasbor</Link>
-                <span>›</span>
-                <span className="text-[#c7d3ea]">{panel.panel_name}</span>
-                <span>›</span>
-                <span className="text-white">{server.name}</span>
-              </div>
-              <h1 className="mt-1 font-[var(--font-aeonikpro)] font-medium text-[24px] leading-none text-white flex items-center gap-3">
-                {server.name}
-                <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${server.state === "online" ? "bg-[rgba(40,200,64,0.15)] text-[#28c840] border border-[rgba(40,200,64,0.25)]" : server.state === "starting" ? "bg-[rgba(102,58,243,0.15)] text-[#a78bfa] border border-[rgba(102,58,243,0.25)]" : server.state === "stopping" ? "bg-[rgba(228,109,76,0.15)] text-[#e46d4c] border border-[rgba(228,109,76,0.25)]" : "bg-[rgba(199,211,234,0.08)] text-[#9da7ba] border border-[rgba(186,215,247,0.08)]"}`}>
-                  {server.state?.toUpperCase() || "OFFLINE"}
-                </span>
-              </h1>
-              <p className="mt-1 text-[12px] text-[#9da7ba] font-mono">ID: {identifier}</p>
+              <p className="text-caption font-medium tracking-wide uppercase text-slate mb-2">Server Control</p>
+              <h1 className="font-hedvig-letters-serif font-bold text-heading-lg text-deep-ink mb-3">{sl.name}</h1>
+              <p className="text-slate text-body-sm">ID: <span className="font-mono text-deep-ink">{sl.identifier}</span></p>
             </div>
-            <Link href="/dashboard" className="pill-ghost rounded-full px-4 py-2 text-[13px] font-medium text-white shrink-0">← Kembali</Link>
+            
+            {/* Status Badge */}
+            <div className={`px-4 py-2 rounded-full border font-semibold text-caption ${statusBadgeClass}`}>
+              {statusText}
+            </div>
+          </div>
+          
+          {/* Stats Row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div className="rounded-lg bg-surface-soft-meadow p-4 border border-deep-ink/5">
+              <p className="text-caption font-medium tracking-wide uppercase text-slate">RAM Limit</p>
+              <p className="font-medium text-subheading text-deep-ink mt-1">{sl.memory_limit || "--"} MB</p>
+            </div>
+            
+            <div className="rounded-lg bg-surface-soft-meadow p-4 border border-deep-ink/5">
+              <p className="text-caption font-medium tracking-wide uppercase text-slate">CPU Limit</p>
+              <p className="font-medium text-subheading text-deep-ink mt-1">{sl.cpu_limit || "--"}%</p>
+            </div>
+            
+            <div className="rounded-lg bg-surface-soft-meadow p-4 border border-deep-ink/5">
+              <p className="text-caption font-medium tracking-wide uppercase text-slate">Disk Limit</p>
+              <p className="font-medium text-subheading text-deep-ink mt-1">{sl.disk_limit ? `${sl.disk_limit / 1024 / 1024 / 1024} GB` : "--"}</p>
+            </div>
+            
+            <div className="rounded-lg bg-surface-soft-meadow p-4 border border-deep-ink/5">
+              <p className="text-caption font-medium tracking-wide uppercase text-slate">Created</p>
+              <p className="font-medium text-subheading text-deep-ink mt-1">{new Date(sl.created_at).toLocaleDateString()}</p>
+            </div>
           </div>
         </div>
       </section>
-
-      {/* Tabs */}
-      <div className="border-b border-[rgba(186,215,247,0.08)] bg-[rgba(5,6,15,0.4)] overflow-x-auto">
-        <div className="mx-auto max-w-[1400px] px-6">
-          <nav className="flex gap-1 min-w-max">
-            {TABS.map((tab) => (
-              <TabButton key={tab.id} tab={tab} currentTab="power" />
-            ))}
-          </nav>
+      
+      {/* Main Content */}
+      <section className="flex-1 py-8">
+        <div className="max-w-[800px] mx-auto px-6 md:px-10 space-y-6">
+          
+          {/* Control Form Card */}
+          <div className="rounded-xl bg-surface-soft-meadow p-6 md:p-8 border border-deep-ink/5 shadow-sm">
+            <div className="mb-6 pb-6 border-b border-deep-ink/5">
+              <h2 className="font-hedvig-letters-serif font-bold text-heading-sm text-deep-ink">Server Controls</h2>
+              <p className="text-slate text-body-sm mt-1">Start, stop, and manage your server</p>
+            </div>
+            
+            <ServerControlForm server={sl} />
+          </div>
+          
+          {/* Connection Info */}
+          <div className="rounded-xl bg-white p-6 md:p-8 border border-deep-ink/5">
+            <h3 className="font-medium text-subheading text-deep-ink mb-4">Connection Details</h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-surface-soft-meadow border border-deep-ink/5">
+                <div>
+                  <p className="text-caption font-medium tracking-wide uppercase text-slate">Panel Name</p>
+                  <p className="font-medium text-body text-deep-ink">{sl.linked_panels?.panel_name || "N/A"}</p>
+                </div>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#59e25d" strokeWidth="2">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </div>
+              
+              <div className="flex items-center justify-between p-4 rounded-lg bg-surface-soft-meadow border border-deep-ink/5">
+                <div>
+                  <p className="text-caption font-medium tracking-wide uppercase text-slate">Status</p>
+                  <p className="font-medium text-body text-deep-ink">{sl.state || "unknown"}</p>
+                </div>
+                <span className={`w-3 h-3 rounded-full ${isOnline ? "bg-[#59e25d] animate-pulse-dot" : isStarting ? "bg-hi-yellow" : "bg-gray-400"}`}></span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Back Button */}
+          <div className="flex justify-between items-center">
+            <Link 
+              href="/dashboard" 
+              className="btn-secondary inline-flex items-center gap-2"
+            >
+              ← Back to Dashboard
+            </Link>
+          </div>
         </div>
-      </div>
-
-      {/* Module Content */}
-      <main className="flex-1 py-6 bg-[#05060f]">
-        <div className="mx-auto max-w-[1400px] px-6 md:px-10 space-y-6">
-          <PowerModule server={server} serverData={serverData} apiKey={apiKey} panelUrl={panel.panel_url} identifier={identifier} serverLinkId={server.id} />
-          <ConsoleModule server={server} identifier={identifier} panelUrl={panel.panel_url} />
-          <FilesModule server={server} identifier={identifier} panelUrl={panel.panel_url} />
-          <DatabasesModule server={server} identifier={identifier} />
-          <BackupsModule server={server} identifier={identifier} />
-          <SchedulesModule server={server} identifier={identifier} />
-          <SettingsModule server={server} identifier={identifier} serverData={serverData} />
-          <AllocationsModule server={server} identifier={identifier} />
-        </div>
-      </main>
+      </section>
+      
+      {/* Footer */}
+      <footer className="py-4 text-center text-caption text-slate border-t border-deep-ink/5 bg-white">
+        © 2026 Pterodactyl Control Panel · Server Control
+      </footer>
     </div>
-  );
-}
-
-function TabButton({ tab, currentTab }: { tab: Tab; currentTab: string }) {
-  const isActive = tab.id === currentTab;
-  return (
-    <button className={`px-4 py-3 text-[13px] font-medium transition-colors border-b-2 whitespace-nowrap ${isActive ? "text-white border-[#663af3]" : "text-[#9da7ba] border-transparent hover:text-[#d1e4fa]"}`}>
-      <span className="mr-1.5">{tab.icon}</span>
-      {tab.label}
-    </button>
   );
 }

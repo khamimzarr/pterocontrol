@@ -60,41 +60,41 @@ export function SchedulesModule({ server, identifier }: SchedulesModuleProps) {
   };
 
   return (
-    <div className="glass-card rounded-[16px] p-6">
+    <div className="rounded-xl bg-surface-soft-meadow p-6 md:p-8 border border-deep-ink/5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-medium text-[16px] text-white">Schedules</h2>
-        <button onClick={() => setShowCreate(!showCreate)} className="flash-violet rounded-full px-4 py-2 text-[13px] font-medium text-white">+ New Schedule</button>
+        <h2 className="font-hedvig-letters-serif font-bold text-heading-sm text-deep-ink">Schedules</h2>
+        <button onClick={() => setShowCreate(!showCreate)} className="btn-primary py-2 text-body-sm">+ New Schedule</button>
       </div>
 
       {showCreate && (
-        <div className="mb-4 p-4 bg-[rgba(199,211,234,0.06)] border border-[rgba(186,215,247,0.12)] rounded-[12px] space-y-3">
-          <input value={newSchedule.name} onChange={(e) => setNewSchedule({ ...newSchedule, name: e.target.value })} placeholder="Schedule name" className="auth-input w-full px-3 py-2 text-[13px]" />
+        <div className="mb-4 p-4 bg-white border border-deep-ink/5 rounded-lg space-y-3">
+          <input value={newSchedule.name} onChange={(e) => setNewSchedule({ ...newSchedule, name: e.target.value })} placeholder="Schedule name" className="input-pill w-full py-3" />
           <div className="grid grid-cols-5 gap-2">
             {["minute", "hour", "day_of_month", "month", "day_of_week"].map((field) => (
-              <input key={field} value={String(newSchedule[field as keyof typeof newSchedule])} onChange={(e) => setNewSchedule({ ...newSchedule, [field]: e.target.value })} placeholder={field.replace("_", " ")} className="auth-input px-3 py-2 text-[12px]" />
+              <input key={field} value={String(newSchedule[field as keyof typeof newSchedule])} onChange={(e) => setNewSchedule({ ...newSchedule, [field]: e.target.value })} placeholder={field.replace("_", " ")} className="input-pill px-3 py-3 text-caption" />
             ))}
           </div>
-          <div className="flex gap-2">
-            <button onClick={() => push("Schedule creation requires full API implementation", "err")} className="flash-violet rounded-full px-4 py-2 text-[12px] font-medium text-white">Create</button>
-            <button onClick={() => setShowCreate(false)} className="pill-ghost rounded-full px-4 py-2 text-[12px] font-medium text-white">Cancel</button>
+          <div className="flex gap-3">
+            <button onClick={() => push("Schedule creation requires full API implementation", "err")} className="btn-primary py-2 text-body-sm">Create</button>
+            <button onClick={() => setShowCreate(false)} className="btn-secondary py-2 text-body-sm">Cancel</button>
           </div>
         </div>
       )}
 
       <div className="space-y-2">
         {schedules.length === 0 ? (
-          <div className="text-[#9da7ba] text-[13px] py-8 text-center">No schedules configured</div>
+          <div className="text-slate text-body-sm py-8 text-center">No schedules configured</div>
         ) : schedules.map((schedule: any) => (
-          <div key={schedule.id} className={`flex items-center justify-between p-3 border rounded-[10px] ${schedule.is_active ? "bg-[rgba(40,200,64,0.06)] border-[rgba(40,200,64,0.15)]" : "bg-[rgba(199,211,234,0.04)] border-[rgba(186,215,247,0.08)]"}`}>
+          <div key={schedule.id} className={`flex items-center justify-between p-4 border rounded-lg ${schedule.is_active ? "bg-[#59e25d]/5 border-[#59e25d]/20" : "bg-white border-deep-ink/5"}`}>
             <div>
-              <div className={`text-[13px] font-medium ${schedule.is_active ? "text-[#28c840]" : "text-[#9da7ba]"}`}>{schedule.name}</div>
-              <div className="text-[11px] text-[#9da7ba]">{schedule.minute} {schedule.hour} {schedule.day_of_month} {schedule.month} {schedule.day_of_week} · {schedule.is_active ? "Active" : "Inactive"}</div>
+              <div className={`text-body font-medium ${schedule.is_active ? "text-[#59e25d]" : "text-slate"}`}>{schedule.name}</div>
+              <div className="text-caption text-slate">{schedule.minute} {schedule.hour} {schedule.day_of_month} {schedule.month} {schedule.day_of_week} · {schedule.is_active ? "Active" : "Inactive"}</div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => toggleSchedule(schedule.id, !schedule.is_active)} className={`px-3 py-1.5 rounded-full text-[12px] font-medium ${schedule.is_active ? "pill-ghost text-[#e46d4c]" : "flash-violet text-white"}`}>
+              <button onClick={() => toggleSchedule(schedule.id, !schedule.is_active)} className={`px-4 py-1.5 rounded-full text-body-sm font-medium ${schedule.is_active ? "btn-ghost text-[#e46d4c]" : "btn-primary py-1.5"}`}>
                 {schedule.is_active ? "Disable" : "Enable"}
               </button>
-              <button onClick={() => deleteSchedule(schedule.id)} className="text-[#e46d4c] hover:text-[#ff7d6a] text-[12px]">Delete</button>
+              <button onClick={() => deleteSchedule(schedule.id)} className="text-[#e46d4c] hover:text-[#d33] text-body-sm font-medium">Delete</button>
             </div>
           </div>
         ))}

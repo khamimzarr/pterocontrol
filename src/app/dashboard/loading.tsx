@@ -1,36 +1,56 @@
-
-export function DashboardSkeleton() {
+export default function DashboardLoading() {
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="glass-card rounded-[16px] p-5 animate-pulse">
-            <div className="h-3 w-12 rounded bg-[rgba(186,214,247,0.10)]" />
-            <div className="mt-3 h-7 w-14 rounded bg-[rgba(186,214,247,0.08)]" />
-            <div className="mt-2 h-3 w-16 rounded bg-[rgba(186,214,247,0.06)]" />
+    <div className="min-h-screen bg-surface-canvas flex flex-col">
+      {/* Loading Navbar */}
+      <nav className="navbar border-b border-deep-ink/5 bg-white animate-pulse">
+        <div className="max-w-[1200px] mx-auto px-6 h-[60px]">
+          <div className="flex items-center justify-between gap-4">
+            <div className="w-32 h-8 rounded-lg bg-surface-soft-meadow"></div>
+            <div className="hidden md:flex items-center gap-32">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-8 w-24 rounded-full bg-surface-soft-meadow"></div>
+              ))}
+            </div>
+            <div className="w-24 h-8 rounded-full bg-surface-soft-meadow"></div>
           </div>
-        ))}
-      </div>
-      <div className="rounded-[16px] bg-[rgba(5,6,15,0.82)] border border-[rgba(186,215,247,0.10)] overflow-hidden">
-        <div className="h-[52px] bg-[rgba(186,214,247,0.04)] border-b border-[rgba(186,215,247,0.06)] animate-pulse" />
-        <div className="p-4 space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-10 rounded-[10px] bg-[rgba(186,214,247,0.04)] animate-pulse" />
-          ))}
         </div>
-      </div>
-    </div>
-  );
-}
-
-export default function Loading() {
-  return (
-    <div className="min-h-screen bg-[#05060f] flex flex-col">
-      <div className="h-[52px] border-b border-[rgba(186,215,247,0.08)] bg-[rgba(5,6,15,0.65)] animate-pulse" />
-      <div className="max-w-[1200px] mx-auto w-full px-6 md:px-10 py-6">
-        <div className="h-6 w-32 rounded bg-[rgba(186,214,247,0.10)] animate-pulse" />
-        <div className="mt-4"><DashboardSkeleton /></div>
-      </div>
+      </nav>
+      
+      {/* Loading Content */}
+      <main className="flex-1 py-8">
+        <div className="max-w-[1200px] mx-auto px-6 space-y-6">
+          {/* Header Skeleton */}
+          <div className="space-y-2">
+            <div className="h-4 w-32 rounded bg-surface-soft-meadow"></div>
+            <div className="h-8 w-64 rounded bg-surface-soft-meadow"></div>
+            <div className="h-4 w-96 rounded bg-surface-soft-meadow"></div>
+          </div>
+          
+          {/* Stats Grid Skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-28 rounded-xl bg-surface-soft-meadow animate-pulse"></div>
+            ))}
+          </div>
+          
+          {/* Panel Cards Skeleton */}
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-20 rounded-xl bg-surface-soft-meadow animate-pulse"></div>
+            ))}
+          </div>
+          
+          {/* Table Skeleton */}
+          <div className="rounded-xl bg-surface-soft-meadow p-6 animate-pulse">
+            <div className="h-4 w-1/3 rounded bg-surface-canvas mb-4"></div>
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="h-12 rounded bg-surface-canvas"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

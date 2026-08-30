@@ -9,24 +9,38 @@ import { RealtimeAdmin } from "@/components/realtime";
 
 function TopNav({ email }: { email: string }) {
   const links = [
-    { href: "/dashboard", label: "Dasbor" },
-    { href: "/panels", label: "Panel" },
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/panels", label: "Panels" },
     { href: "/admin", label: "Admin", active: true },
-    { href: "/akun", label: "Akun" },
+    { href: "/akun", label: "Account" },
   ];
+  
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-[16px] bg-[rgba(5,6,15,0.65)] border-b border-[rgba(186,215,247,0.08)]">
-      <div className="mx-auto max-w-[1200px] px-6 h-[52px] flex items-center justify-between gap-2">
-        <Link href="/admin" className="flex items-center gap-2.5 shrink-0"><span className="w-7 h-7 rounded-full grid place-items-center bg-[#b64400] text-white text-[11px] font-bold">◈</span><span className="font-medium text-[15px] text-[#d1e4fa]">PteroControl</span><span className="px-2 py-0.5 rounded-full bg-[#663af3] text-white text-[10px] tracking-[0.06em] uppercase">ADMIN</span></Link>
-        <nav className="hidden md:flex items-center gap-1 text-[13px] font-medium text-[#c7d3ea]">
-          <Link href="/dashboard" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Dasbor</Link>
-          <Link href="/panels" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Panel</Link>
-          <Link href="/admin" className="px-3 py-1.5 rounded-full bg-[rgba(199,211,234,0.12)] text-white">Admin</Link>
-          <Link href="/akun" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Akun</Link>
+    <nav className="navbar">
+      <div className="nav-container">
+        <Link href="/admin" className="nav-logo">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="14" stroke="#ffe228" strokeWidth="3"/>
+            <path d="M16 8l8 4-8 4-8-4 8-4z" fill="#130e30"/>
+          </svg>
+          Pterodactyl
+        </Link>
+        
+        <nav className="hidden md:flex items-center gap-32">
+          <Link href="/dashboard" className="px-4 py-2 rounded-full bg-surface-canvas text-deep-ink font-medium text-body-sm">Dashboard</Link>
+          <Link href="/panels" className="nav-link">Panels</Link>
+          <Link href="/admin" className="px-4 py-2 rounded-full bg-hi-yellow text-deep-ink font-semibold text-body-sm shadow-sm">Admin</Link>
+          <Link href="/akun" className="nav-link">Account</Link>
         </nav>
-        <div className="flex items-center gap-2"><span className="hidden sm:inline text-[11px] text-[#9da7ba] truncate max-w-[120px]">{email}</span><form action={logout} className="hidden sm:block"><button className="pill-ghost rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Keluar</button></form><MobileMenu links={links} /></div>
+        
+        <div className="nav-actions">
+          <span className="text-caption text-slate hidden sm:inline truncate max-w-[120px]">{email}</span>
+          <form action={logout} className="hidden sm:block">
+            <button className="btn-ghost text-body-sm">Log Out</button>
+          </form>
+        </div>
       </div>
-    </header>
+    </nav>
   );
 }
 
@@ -37,41 +51,76 @@ export default async function AdminPage() {
   const pend = pending?.filter((u) => u.status === "PENDING").length ?? 0;
   const rej = pending?.filter((u) => u.status === "REJECTED").length ?? 0;
   const { data: app } = await supabase.from("profiles").select("id").eq("status", "APPROVED");
+  const approvedCount = app?.length ?? 0;
+  
   return (
-    <div className="min-h-screen bg-[#05060f] flex flex-col">
+    <div className="min-h-screen bg-surface-canvas flex flex-col">
       <TopNav email={admin.email} />
+      
       <RealtimeAdmin />
-      <section className="relative overflow-hidden border-b border-[rgba(186,215,247,0.06)]">
-        <div className="absolute inset-0 bg-grid opacity-[0.22] pointer-events-none" aria-hidden />
-        <div className="relative mx-auto max-w-[1200px] px-6 md:px-10 py-7">
-          <p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Admin · Inbox</p>
-          <h1 className="mt-1 font-[var(--font-aeonikpro)] font-medium text-[26px] leading-none tracking-[-0.02em] text-[#d8ecf8]">Menunggu.</h1>
-          <p className="mt-2 text-[13px] text-[#9da7ba]">Hanya ADMIN_EMAIL yang bisa akses.</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(228,109,76,0.12)] border border-[rgba(228,109,76,0.18)] text-[#e46d4c] text-[11px] font-medium px-3 py-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#e46d4c] animate-pulse-dot" />{pend} menunggu</span>
-            <span className="rounded-full bg-[rgba(199,211,234,0.08)] border border-[rgba(186,215,247,0.08)] text-[11px] text-[#c7d3ea] px-3 py-1.5">{app?.length ?? 0} approved</span>
-            <span className="rounded-full bg-[rgba(199,211,234,0.06)] border border-[rgba(186,215,247,0.06)] text-[11px] text-[#9da7ba] px-3 py-1.5">{rej} ditolak</span>
+      
+      {/* Page Header */}
+      <section className="border-b border-deep-ink/5 bg-white">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-7">
+          <p className="text-caption font-semibold tracking-wide uppercase text-slate mb-2">Admin Inbox</p>
+          <h1 className="font-hedvig-letters-serif font-bold text-heading-lg text-deep-ink mb-3">User Management</h1>
+          <p className="text-slate text-body-sm mb-6">Manage user approvals and access levels.</p>
+          
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="rounded-xl bg-surface-soft-meadow p-5 border border-deep-ink/5">
+              <p className="text-caption font-medium tracking-wide uppercase text-slate">Pending</p>
+              <p className="font-hedvig-letters-serif font-bold text-display text-hi-yellow mt-2">{pend}</p>
+              <p className="text-caption text-slate mt-1">awaiting approval</p>
+            </div>
+            
+            <div className="rounded-xl bg-surface-soft-meadow p-5 border border-deep-ink/5">
+              <p className="text-caption font-medium tracking-wide uppercase text-slate">Rejected</p>
+              <p className="font-hedvig-letters-serif font-bold text-display text-[#e46d4c] mt-2">{rej}</p>
+              <p className="text-caption text-slate mt-1">manual review needed</p>
+            </div>
+            
+            <div className="rounded-xl bg-surface-soft-meadow p-5 border border-deep-ink/5">
+              <p className="text-caption font-medium tracking-wide uppercase text-slate">Approved</p>
+              <p className="font-hedvig-letters-serif font-bold text-display text-[#59e25d] mt-2">{approvedCount}</p>
+              <p className="text-caption text-slate mt-1">active users</p>
+            </div>
+            
+            <div className="rounded-xl bg-gradient-to-br from-hi-yellow to-[#fcd34d] p-5 text-deep-ink shadow-sm">
+              <p className="text-caption font-bold tracking-wide uppercase opacity-75">Status</p>
+              <p className="font-bold text-xl mt-2">Admin Panel</p>
+              <p className="text-caption opacity-75">role-based access</p>
+            </div>
           </div>
         </div>
       </section>
-      <section className="flex-1 py-6 bg-[#05060f]">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-10 space-y-3">
-          {(!pending || pending.length === 0) ? (
-            <div className="rounded-[16px] bg-[rgba(5,6,15,0.82)] border border-[rgba(186,215,247,0.08)] p-7 text-center"><p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Kosong</p><p className="mt-1 font-medium text-[15px] text-white">Tidak ada antrean.</p><p className="text-[13px] text-[#9da7ba]">Live — akan muncul otomatis.</p></div>
-          ) : (
-            <div className="grid gap-3">
-              {pending!.map((u) => (
-                <div key={u.id} className="glass-card rounded-[16px] p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
-                  <div className="min-w-0"><div className="flex gap-2 items-center flex-wrap"><p className="font-medium text-[13px] truncate text-white">{u.email}</p><span className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium border ${u.status === "PENDING" ? "bg-[rgba(228,109,76,0.12)] text-[#e46d4c] border-[rgba(228,109,76,0.20)]" : "bg-[rgba(199,211,234,0.08)] text-[#9da7ba] border-[rgba(186,215,247,0.08)]"}`}>{u.status === "PENDING" ? "PENDING" : "DITOLAK"}</span></div><p className="font-mono text-[11px] text-[#9da7ba] truncate mt-1">{u.id}</p><p className="text-[11px] text-[#9da7ba]">{new Date(u.created_at).toLocaleDateString("id-ID")}</p></div>
-                  <AdminActions userId={u.id} email={u.email} status={u.status} />
-                </div>
-              ))}
+      
+      {/* Pending Requests */}
+      <section className="flex-1 py-8">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10">
+          <h2 className="font-hedvig-letters-serif font-bold text-heading text-deep-ink mb-6">User Requests</h2>
+          
+          <AdminActions requests={pending || []} />
+          
+          <div className="mt-8 rounded-xl bg-surface-soft-meadow p-6 border border-deep-ink/5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium text-subheading text-deep-ink">Quick Actions</h3>
+              <span className="text-caption text-slate">All changes are logged</span>
             </div>
-          )}
-          <div className="rounded-[16px] bg-[#663af3] p-4 flex justify-between items-center gap-3 shadow-[0_8px_24px_rgba(102,58,243,0.35)]"><p className="font-medium text-[13px] text-white">Approved = akses dasbor.</p><Link href="/dashboard" className="shrink-0 rounded-full bg-white text-[#05060f] text-[12px] font-medium px-4 py-2">Dasbor →</Link></div>
+            
+            <div className="flex flex-wrap gap-3">
+              <button className="btn-primary py-2.5">Approve All Pending</button>
+              <button className="btn-secondary py-2.5">Reject Rejected</button>
+              <button className="btn-ghost py-2.5">Export CSV</button>
+            </div>
+          </div>
         </div>
       </section>
-      <footer className="border-t border-[rgba(186,215,247,0.06)] bg-[rgba(186,214,247,0.015)] py-4"><div className="mx-auto max-w-[1200px] px-6 md:px-10 text-[11px] text-[#9da7ba]">Admin: <span className="text-[#c7d3ea]">{admin.email}</span> · Realtime on</div></footer>
+      
+      {/* Footer */}
+      <footer className="py-4 text-center text-caption text-slate border-t border-deep-ink/5 bg-white">
+        © 2026 Pterodactyl Control Panel · Admin Mode
+      </footer>
     </div>
   );
 }
