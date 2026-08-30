@@ -134,7 +134,7 @@ function HowItWorks() {
 /* Reusable stat card */
 function StatCard({ label, value, sub, highlight }: { label: string; value: React.ReactNode; sub?: string; highlight?: boolean }) {
   return (
-    <div className={`rounded-xl p-5 border border-deep-ink/5 ${highlight ? "bg-gradient-to-br from-hi-yellow to-[#fcd34d] text-deep-ink shadow-sm" : "bg-surface-soft-meadow"}`}>
+    <div className={`rounded-xl p-5 border border-deep-ink/5 hover-lift ${highlight ? "bg-gradient-to-br from-hi-yellow to-[#fcd34d] text-deep-ink shadow-sm" : "bg-surface-soft-meadow"}`}>
       <p className={`text-caption font-semibold tracking-wide uppercase ${highlight ? "text-deep-ink/70" : "text-slate"}`}>{label}</p>
       <p className="font-hedvig-letters-serif font-bold text-[28px] leading-none mt-1">{value}</p>
       {sub && <p className={`text-caption mt-1 ${highlight ? "text-deep-ink/70" : "text-slate"}`}>{sub}</p>}
@@ -168,7 +168,7 @@ export default async function DashboardPage() {
         </section>
         <section className="flex-1 py-8">
           <div className="max-w-[1200px] mx-auto px-6 md:px-10 space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-slide-up">
               <StatCard label="Panels" value="3" sub={`${ok} online · preview`} />
               <StatCard label="Servers" value={total} sub="sample" />
               <StatCard label="Mode" value="Preview" sub="register for live" highlight />
@@ -177,7 +177,7 @@ export default async function DashboardPage() {
             
             <div className="grid md:grid-cols-3 gap-4">
               {previewPanels.map((r) => (
-                <div key={r.panelId} className="rounded-xl bg-white p-5 border border-deep-ink/5 hover:border-deep-ink/10 transition-colors">
+                <div key={r.panelId} className="rounded-xl bg-white p-5 border border-deep-ink/5 hover:border-deep-ink/10 transition-colors hover-lift">
                   <div className="flex justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-medium text-body text-deep-ink truncate">{r.panelName}</p>
@@ -193,7 +193,9 @@ export default async function DashboardPage() {
               ))}
             </div>
             
-            <DashboardTable servers={PREVIEW_SERVERS} />
+            <div className="animate-slide-up animate-delay-200">
+              <DashboardTable servers={PREVIEW_SERVERS} />
+            </div>
             <p className="text-center text-caption text-slate">Above is sample data — search & filter are testable.</p>
           </div>
         </section>
@@ -272,7 +274,7 @@ export default async function DashboardPage() {
           ) : (
             <>
               {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-slide-up">
                 <StatCard label="Panels" value={panels!.length} sub={`${ok} online`} />
                 <StatCard label="Servers" value={total} sub={total === 0 ? "—" : "total"} />
                 <StatCard 
@@ -285,9 +287,9 @@ export default async function DashboardPage() {
               </div>
               
               {/* Panel status cards */}
-              <div className="mt-4 grid md:grid-cols-3 gap-4">
+              <div className="mt-4 grid md:grid-cols-3 gap-4 animate-slide-up animate-delay-100">
                 {results.map((r) => (
-                  <div key={r.panelId} className="rounded-xl bg-white p-5 border border-deep-ink/5 hover:border-deep-ink/10 transition-colors">
+                  <div key={r.panelId} className="rounded-xl bg-white p-5 border border-deep-ink/5 hover:border-deep-ink/10 transition-colors hover-lift">
                     <div className="flex justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-medium text-body text-deep-ink truncate">{r.panelName}</p>

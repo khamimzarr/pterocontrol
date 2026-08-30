@@ -122,13 +122,17 @@ export default async function ServerDetailPage({ params }: { params: Promise<{ p
       <section className="flex-1 py-8">
         <div className="max-w-[800px] mx-auto px-6 md:px-10 space-y-6">
           
-          <PowerModule server={sl} identifier={sl.identifier} />
+          <div className="animate-slide-up">
+            <PowerModule server={sl} identifier={sl.identifier} />
+          </div>
 
           {/* Console Module */}
-          <ConsoleModule server={sl} identifier={sl.identifier} panelUrl={sl.linked_panels?.panel_url} />
+          <div className="animate-slide-up animate-delay-100">
+            <ConsoleModule server={sl} identifier={sl.identifier} panelUrl={sl.linked_panels?.panel_url} />
+          </div>
           
           {/* Connection Info */}
-          <div className="rounded-xl bg-white p-6 md:p-8 border border-deep-ink/5">
+          <div className="rounded-xl bg-white p-6 md:p-8 border border-deep-ink/5 animate-slide-up animate-delay-200 hover-lift">
             <h3 className="font-medium text-subheading text-deep-ink mb-4">Connection Details</h3>
             
             <div className="space-y-4">

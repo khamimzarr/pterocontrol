@@ -43,7 +43,7 @@ function Hero() {
       <div className="blob blob-yellow" style={{ bottom: "10%", left: "30%" }} />
       
       <div className="hero-container">
-        <div className="hero-content">
+        <div className="hero-content animate-slide-up">
           <span className="hero-badge">AES-256 · Zero-Knowledge Security</span>
           
           <h1 className="hero-headline">
@@ -138,15 +138,15 @@ function Stats() {
         <div className="stat-value">10K+</div>
         <div className="stat-label">Active Users</div>
       </div>
-      <div className="stat-card">
+      <div className="stat-card hover-lift animate-slide-up">
         <div className="stat-value">50K+</div>
         <div className="stat-label">Servers Managed</div>
       </div>
-      <div className="stat-card">
+      <div className="stat-card hover-lift animate-slide-up animate-delay-100">
         <div className="stat-value">99.9%</div>
         <div className="stat-label">Uptime SLA</div>
       </div>
-      <div className="stat-card">
+      <div className="stat-card hover-lift animate-slide-up animate-delay-200">
         <div className="stat-value">24/7</div>
         <div className="stat-label">Expert Support</div>
       </div>
@@ -203,7 +203,7 @@ function Features() {
         
         <div className="features-grid">
           {features.map((feature, index) => (
-            <div key={index} className="feature-card reveal-scale">
+            <div key={index} className="feature-card hover-lift animate-slide-up">
               <div className="feature-icon">{feature.icon}</div>
               <h3 className="feature-title">{feature.title}</h3>
               <p className="feature-text">{feature.text}</p>
@@ -230,7 +230,7 @@ function SecurityFeature() {
         </p>
         
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="feature-card">
+          <div className="feature-card hover-lift animate-slide-up">
             <div className="w-12 h-12 rounded-full bg-surface-canvas grid place-items-center mb-4 text-xl">
               🔐
             </div>
@@ -240,7 +240,7 @@ function SecurityFeature() {
             </p>
           </div>
           
-          <div className="feature-card border-2 border-hi-yellow">
+          <div className="feature-card border-2 border-hi-yellow hover-lift animate-slide-up animate-delay-100">
             <div className="w-12 h-12 rounded-full bg-surface-canvas grid place-items-center mb-4 text-xl">
               🛡️
             </div>
