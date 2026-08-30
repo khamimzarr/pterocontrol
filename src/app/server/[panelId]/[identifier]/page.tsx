@@ -6,6 +6,7 @@ import Link from "next/link";
 import { logout } from "@/lib/actions/auth-actions";
 import { MobileMenu } from "@/components/mobile-menu";
 import { ServerControlForm } from "@/components/panel-forms";
+import { ConsoleModule } from "@/components/server/console-module";
 
 function TopNav({ email, isAdmin }: { email: string; isAdmin: boolean }) {
   const links = [
@@ -130,6 +131,9 @@ export default async function ServerDetailPage({ params }: { params: Promise<{ p
             
             <ServerControlForm server={sl} />
           </div>
+
+          {/* Console Module */}
+          <ConsoleModule server={sl} identifier={sl.identifier} panelUrl={sl.linked_panels?.panel_url} />
           
           {/* Connection Info */}
           <div className="rounded-xl bg-white p-6 md:p-8 border border-deep-ink/5">
