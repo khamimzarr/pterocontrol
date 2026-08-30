@@ -26,8 +26,9 @@ export function PowerModule({ server, identifier }: PowerModuleProps) {
         body: JSON.stringify({
           panelId: server.id,
           identifier,
-          path: `signals/${signal}`,
+          path: "power",
           method: "POST",
+          data: { signal },
         }),
       });
 
