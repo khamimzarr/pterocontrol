@@ -1,14 +1,15 @@
 export const dynamic = "force-dynamic";
+import React from "react";
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { decrypt } from "@/lib/encryption";
 import { aggregatePanels, type FetchPanelResult, type AggregatedServer } from "@/lib/pterodactyl";
 import { logout } from "@/lib/actions/auth-actions";
-import { syncServers } from "@/lib/actions/server-actions";
 import { MobileMenu } from "@/components/mobile-menu";
 import { DashboardTable } from "@/components/dashboard-table";
 import { RealtimePanels } from "@/components/realtime";
+import { ServerSyncTrigger } from "@/components/server-sync-trigger";
 
 const PREVIEW_SERVERS: AggregatedServer[] = [
   { panelId: "pv-eu", panelName: "eu-1", panelUrl: "https://panel.eu.example", identifier: "a1b2c3d4", name: "survival-01", node: "eu-node-1", memoryLimit: 2048, cpuLimit: 120 },
@@ -28,65 +29,75 @@ const PREVIEW_RESULTS: FetchPanelResult[] = [
 function TopNav({ email, isAdmin, isPreview }: { email?: string | null; isAdmin?: boolean; isPreview?: boolean }) {
   const links = isPreview
     ? [
-        { href: "/login", label: "Masuk" },
-        { href: "/register", label: "Daftar", active: true },
+        { href: "/login", label: "Log In" },
+        { href: "/register", label: "Register", active: true },
       ]
     : [
-        { href: "/dashboard", label: "Dasbor", active: true },
-        { href: "/panels", label: "Panel" },
+        { href: "/dashboard", label: "Dashboard", active: true },
+        { href: "/panels", label: "Panels" },
         ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
-        { href: "/akun", label: "Akun" },
+        { href: "/akun", label: "Account" },
       ];
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-[16px] bg-[rgba(5,6,15,0.65)] border-b border-[rgba(186,215,247,0.08)]">
-      <div className="mx-auto max-w-[1200px] px-6 h-[52px] flex items-center justify-between gap-2">
-        <Link href={isPreview ? "/" : "/dashboard"} className="flex items-center gap-2.5 shrink-0">
-          <span className="w-7 h-7 rounded-full grid place-items-center bg-[rgba(186,214,247,0.08)] border border-[rgba(186,215,247,0.12)]"><span className="w-2.5 h-2.5 rounded-full bg-[#663af3] shadow-[0_0_10px_rgba(102,58,243,0.8)] animate-shimmer-dot" /></span>
-          <span className="font-medium text-[15px] text-[#d1e4fa]">PteroControl</span>
-          <span className={`hidden sm:inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border ${isPreview ? "bg-[rgba(228,109,76,0.14)] text-[#e46d4c] border-[rgba(228,109,76,0.20)]" : "bg-[rgba(199,211,234,0.10)] text-[#c7d3ea] border-[rgba(186,215,247,0.06)]"}`}>{isPreview ? "pratinjau" : "dasbor"}</span>
+    <nav className="navbar">
+      <div className="nav-container">
+        <Link href={isPreview ? "/" : "/dashboard"} className="nav-logo">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 2C12 2 9 4 8 7c-2 5 1 9 4 11 1 1 3 1 5 1s4-1 5-2c2-2 3-5 2-8-1-3-4-5-8-5z" fill="#ffe228"/>
+            <circle cx="16" cy="18" r="3" fill="#130e30"/>
+          </svg>
+          Pterodactyl
+          <span className={`hidden sm:inline-flex px-2 py-0.5 rounded-full text-caption font-medium border ${isPreview ? "bg-hi-yellow/10 text-slate border-hi-yellow" : "bg-hi-yellow/20 text-deep-ink border-hi-yellow"}`}>{isPreview ? "preview" : "dashboard"}</span>
         </Link>
-        <nav className="hidden md:flex items-center gap-1 text-[13px] font-medium text-[#c7d3ea]">
+        
+        <nav className="hidden md:flex items-center gap-8">
           {isPreview ? (
             <>
-              <span className="px-3 py-1.5 rounded-full bg-[rgba(199,211,234,0.12)] text-white">Dasbor</span>
-              <Link href="/login" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Masuk</Link>
-              <Link href="/register" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Daftar</Link>
+              <span className="nav-link">Dashboard</span>
+              <Link href="/login" className="nav-link">Log In</Link>
+              <Link href="/register" className="nav-link">Register</Link>
             </>
           ) : (
             <>
-              <Link href="/dashboard" className="px-3 py-1.5 rounded-full bg-[rgba(199,211,234,0.12)] text-white">Dasbor</Link>
-              <Link href="/panels" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Panel</Link>
-              {isAdmin && <Link href="/admin" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Admin</Link>}
-              <Link href="/akun" className="px-3 py-1.5 rounded-full hover:text-white hover:bg-[rgba(186,214,247,0.06)]">Akun</Link>
+              <Link href="/dashboard" className="nav-link">Dashboard</Link>
+              <Link href="/panels" className="nav-link">Panels</Link>
+              {isAdmin && <Link href="/admin" className="nav-link">Admin</Link>}
+              <Link href="/akun" className="nav-link">Account</Link>
             </>
           )}
         </nav>
-        <div className="flex items-center gap-2">
+        
+        <div className="nav-actions">
           {isPreview ? (
             <>
-              <Link href="/login" className="hidden sm:inline-flex pill-ghost rounded-full px-4 py-1.5 text-[13px] font-medium text-white">Masuk</Link>
-              <Link href="/register" className="hidden sm:inline-flex flash-violet rounded-full px-4 py-1.5 text-[13px] font-medium text-white">Daftar</Link>
+              <Link href="/login" className="btn-secondary">Log In</Link>
+              <Link href="/register" className="btn-primary">Register</Link>
               <MobileMenu links={links} />
             </>
           ) : (
             <>
-              <span className="hidden sm:inline text-[11px] text-[#9da7ba] truncate max-w-[140px]">{email}</span>
-              <form action={logout} className="hidden sm:block"><button className="pill-ghost rounded-full px-3 py-1.5 text-[12px] font-medium text-white">Keluar</button></form>
+              <span className="hidden sm:inline text-caption text-slate truncate max-w-[140px]">{email}</span>
+              <form action={logout} className="hidden sm:block">
+                <button className="btn-ghost text-body-sm">Log Out</button>
+              </form>
               <MobileMenu links={links} />
             </>
           )}
         </div>
       </div>
-    </header>
+    </nav>
   );
 }
 
 function PreviewBanner() {
   return (
-    <div className="border-b border-[rgba(186,215,247,0.08)] bg-[rgba(228,109,76,0.08)]">
-      <div className="mx-auto max-w-[1200px] px-6 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[12px]">
-        <span className="text-[#e46d4c] font-medium">Pratinjau — data contoh. Masuk untuk lihat server aslimu.</span>
-        <div className="flex gap-2"><Link href="/login" className="pill-ghost rounded-full px-3 py-1 text-[12px] font-medium text-white">Masuk</Link><Link href="/register" className="flash-violet rounded-full px-3 py-1 text-[12px] font-medium text-white">Daftar</Link></div>
+    <div className="border-b border-hi-yellow/20 bg-hi-yellow/10">
+      <div className="max-w-[1200px] mx-auto px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+        <span className="text-body-sm text-slate font-medium">Preview — sample data. Log in to see your real servers.</span>
+        <div className="flex gap-2">
+          <Link href="/login" className="btn-secondary py-2">Log In</Link>
+          <Link href="/register" className="btn-primary py-2">Register</Link>
+        </div>
       </div>
     </div>
   );
@@ -94,26 +105,40 @@ function PreviewBanner() {
 
 function HowItWorks() {
   return (
-    <section className="relative border-t border-[rgba(186,215,247,0.06)] bg-[rgba(186,214,247,0.015)]">
-      <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-10">
-        <p className="text-center text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Cara kerja</p>
-        <h2 className="mt-2 text-center font-[var(--font-aeonikpro)] font-medium text-[22px] text-[#d8ecf8]">3 langkah.</h2>
+    <section className="border-t border-deep-ink/5 bg-white">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-10">
+        <p className="text-center text-caption font-semibold tracking-wide uppercase text-slate mb-2">How it works</p>
+        <h2 className="mt-2 text-center font-hedvig-letters-serif font-bold text-heading text-deep-ink">3 simple steps.</h2>
         <div className="mt-6 grid md:grid-cols-3 gap-4">
           {[
-            { n: "01", t: "Daftar", d: "Email + sandi. Auto PENDING." },
-            { n: "02", t: "Admin setujui", d: "Tanpa APPROVED, tidak bisa buka dasbor live." },
-            { n: "03", t: "Hubungkan panel", d: "URL + ptlc_… → AES-256. Langsung agregat." },
+            { n: "01", t: "Register", d: "Email + password. Auto PENDING." },
+            { n: "02", t: "Admin approval", d: "Without APPROVED, live dashboard stays locked." },
+            { n: "03", t: "Connect panels", d: "URL + ptlc_... → AES-256. Aggregate instantly." },
           ].map((s) => (
-            <div key={s.n} className="glass-card rounded-[16px] p-5">
-              <p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#663af3]">{s.n}</p>
-              <h3 className="mt-1 font-medium text-[15px] text-white">{s.t}</h3>
-              <p className="mt-1 text-[13px] text-[#9da7ba]">{s.d}</p>
+            <div key={s.n} className="feature-card">
+              <p className="text-caption font-semibold tracking-wide uppercase text-hi-yellow">{s.n}</p>
+              <h3 className="feature-title mt-2">{s.t}</h3>
+              <p className="feature-text">{s.d}</p>
             </div>
           ))}
         </div>
-        <div className="mt-6 flex justify-center gap-2"><Link href="/register" className="flash-violet rounded-full px-5 py-2.5 text-[13px] font-medium text-white">Daftar</Link><Link href="/login" className="pill-ghost rounded-full px-5 py-2.5 text-[13px] font-medium text-white">Masuk →</Link></div>
+        <div className="mt-6 flex justify-center gap-3">
+          <Link href="/register" className="btn-primary">Register</Link>
+          <Link href="/login" className="btn-secondary">Log In →</Link>
+        </div>
       </div>
     </section>
+  );
+}
+
+/* Reusable stat card */
+function StatCard({ label, value, sub, highlight }: { label: string; value: React.ReactNode; sub?: string; highlight?: boolean }) {
+  return (
+    <div className={`rounded-xl p-5 border border-deep-ink/5 ${highlight ? "bg-gradient-to-br from-hi-yellow to-[#fcd34d] text-deep-ink shadow-sm" : "bg-surface-soft-meadow"}`}>
+      <p className={`text-caption font-semibold tracking-wide uppercase ${highlight ? "text-deep-ink/70" : "text-slate"}`}>{label}</p>
+      <p className="font-hedvig-letters-serif font-bold text-[28px] leading-none mt-1">{value}</p>
+      {sub && <p className={`text-caption mt-1 ${highlight ? "text-deep-ink/70" : "text-slate"}`}>{sub}</p>}
+    </div>
   );
 }
 
@@ -122,50 +147,65 @@ export default async function DashboardPage() {
   const isPreview = !user || user.status !== "APPROVED";
 
   if (isPreview) {
-    // Pratinjau publik — tidak decrypt, tidak fetch
+    // Public preview — no decrypt, no fetch
     const previewPanels = PREVIEW_RESULTS;
     const total = PREVIEW_SERVERS.length;
     const ok = previewPanels.filter((r) => r.ok).length;
     return (
-      <div className="min-h-screen bg-[#05060f] flex flex-col">
+      <div className="min-h-screen bg-surface-canvas flex flex-col">
         <TopNav isPreview />
         <PreviewBanner />
-        <section className="relative overflow-hidden border-b border-[rgba(186,215,247,0.06)]">
-          <div className="absolute inset-0 bg-grid opacity-[0.22] pointer-events-none" aria-hidden />
-          <div className="relative mx-auto max-w-[1200px] px-6 md:px-10 py-7">
-            <p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Dasbor · Pratinjau</p>
-            <h1 className="mt-1 font-[var(--font-aeonikpro)] font-medium text-[26px] md:text-[30px] leading-none tracking-[-0.02em] text-[#d8ecf8]">Semua server — contoh.</h1>
-            <p className="mt-2 text-[13px] text-[#9da7ba]">3 panel · {ok}/3 online · {total} server (data dummy).</p>
-            <div className="mt-4 flex gap-2 flex-wrap"><Link href="/register" className="flash-violet rounded-full px-5 py-2 text-[13px] font-medium text-white">Daftar untuk live</Link><Link href="/login" className="pill-ghost rounded-full px-5 py-2 text-[13px] font-medium text-white">Masuk →</Link></div>
+        <section className="border-b border-deep-ink/5 bg-white">
+          <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-7">
+            <p className="text-caption font-semibold tracking-wide uppercase text-slate mb-2">Dashboard · Preview</p>
+            <h1 className="font-hedvig-letters-serif font-bold text-heading-lg text-deep-ink mb-3">All servers — sample.</h1>
+            <p className="text-slate text-body-sm">{3} panels · {ok}/3 online · {total} servers (dummy data).</p>
+            <div className="mt-4 flex gap-3 flex-wrap">
+              <Link href="/register" className="btn-primary">Register for live</Link>
+              <Link href="/login" className="btn-secondary">Log In →</Link>
+            </div>
           </div>
         </section>
-        <section className="flex-1 py-6 bg-[#05060f]">
-          <div className="mx-auto max-w-[1200px] px-6 md:px-10 space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="glass-card rounded-[16px] p-5"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Panel</p><p className="font-[var(--font-aeonikpro)] font-medium text-[28px] leading-none text-white mt-1">3</p><p className="text-[11px] text-[#9da7ba]">{ok} online · pratinjau</p></div>
-              <div className="glass-card rounded-[16px] p-5"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Server</p><p className="font-[var(--font-aeonikpro)] font-medium text-[28px] leading-none text-white mt-1">{total}</p><p className="text-[11px] text-[#9da7ba]">contoh</p></div>
-              <div className="rounded-[16px] bg-[#663af3] p-5 text-white shadow-[0_8px_24px_rgba(102,58,243,0.35)]"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-white/70">Mode</p><p className="font-medium text-[15px] mt-1">Pratinjau</p><p className="text-[11px] text-white/70">daftar untuk live</p></div>
-              <div className="glass-card rounded-[16px] p-5"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Enkripsi</p><p className="font-medium text-[15px] text-white mt-1">AES-256</p><p className="text-[11px] text-[#9da7ba]">live butuh login</p></div>
+        <section className="flex-1 py-8">
+          <div className="max-w-[1200px] mx-auto px-6 md:px-10 space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatCard label="Panels" value="3" sub={`${ok} online · preview`} />
+              <StatCard label="Servers" value={total} sub="sample" />
+              <StatCard label="Mode" value="Preview" sub="register for live" highlight />
+              <StatCard label="Encryption" value="AES-256" sub="live needs login" />
             </div>
-            <div className="grid md:grid-cols-3 gap-3">
+            
+            <div className="grid md:grid-cols-3 gap-4">
               {previewPanels.map((r) => (
-                <div key={r.panelId} className="glass-card rounded-[16px] p-5">
-                  <div className="flex justify-between gap-3"><div className="min-w-0"><p className="font-medium text-[13px] truncate text-white">{r.panelName}</p><p className="text-[11px] text-[#9da7ba] truncate">{r.panelUrl}</p></div><span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium border ${r.ok ? "bg-[rgba(199,211,234,0.10)] text-[#d1e4fa] border-[rgba(186,215,247,0.08)]" : "bg-[rgba(228,109,76,0.12)] text-[#e46d4c] border-[rgba(228,109,76,0.22)]"}`}><span className={`w-1.5 h-1.5 rounded-full ${r.ok ? "bg-[#663af3] animate-pulse-dot" : "bg-[#e46d4c]"}`} />{r.ok ? `${r.servers.length}` : "Error"}</span></div>
-                  {!r.ok && r.error && <p className="mt-2 text-[11px] text-[#e46d4c] break-words">{r.error}</p>}
+                <div key={r.panelId} className="rounded-xl bg-white p-5 border border-deep-ink/5 hover:border-deep-ink/10 transition-colors">
+                  <div className="flex justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-body text-deep-ink truncate">{r.panelName}</p>
+                      <p className="text-caption text-slate truncate">{r.panelUrl}</p>
+                    </div>
+                    <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-caption font-medium border ${r.ok ? "bg-[#59e25d]/10 text-[#59e25d] border-[#59e25d]" : "bg-[#e46d4c]/10 text-[#e46d4c] border-[#e46d4c]"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${r.ok ? "bg-[#59e25d] animate-pulse-dot" : "bg-[#e46d4c]"}`} />
+                      {r.ok ? `${r.servers.length}` : "Error"}
+                    </span>
+                  </div>
+                  {!r.ok && r.error && <p className="mt-2 text-caption text-[#e46d4c] break-words">{r.error}</p>}
                 </div>
               ))}
             </div>
+            
             <DashboardTable servers={PREVIEW_SERVERS} />
-            <p className="text-center text-[11px] text-[#9da7ba]">Di atas data contoh — search & filter bisa dicoba.</p>
+            <p className="text-center text-caption text-slate">Above is sample data — search & filter are testable.</p>
           </div>
         </section>
         <HowItWorks />
-        <footer className="border-t border-[rgba(186,215,247,0.06)] bg-[rgba(186,214,247,0.015)] py-4"><div className="mx-auto max-w-[1200px] px-6 md:px-10 text-[11px] text-[#9da7ba]">© 2025 PteroControl · Pratinjau</div></footer>
+        <footer className="py-4 text-center text-caption text-slate border-t border-deep-ink/5 bg-white">
+          <p>© 2026 Pterodactyl Control Panel · Preview</p>
+        </footer>
       </div>
     );
   }
 
-  // Live — APPROVED
+  // Live — APPROVED user
   const supabase = await createClient();
   const { data: panels } = await supabase.from("linked_panels").select("id, panel_name, panel_url, encrypted_api_key").eq("user_id", user.id).order("created_at");
   const hasPanels = panels && panels.length > 0;
@@ -181,84 +221,136 @@ export default async function DashboardPage() {
   }
   const all = results.flatMap((r) => r.servers);
   
-  // Sync servers to server_links for control features
-  await syncServers();
+  // NOTE: server_links sync + revalidatePath is intentionally NOT run during render.
+  // Calling revalidatePath during render throws in Next.js and crashes the page.
+  // Server list is shown live from aggregatePanels() above; server_links (control
+  // cards) sync is handled separately when its table + triggers are available.
   
-  // Fetch synced server_links for clickable cards
+  // Fetch synced server_links for clickable cards (optional; empty if table/rows missing)
   const { data: serverLinks } = await supabase
     .from("server_links")
     .select("id, identifier, name, state, memory_limit, cpu_limit, disk_limit, panel_id, linked_panels(panel_name)")
     .eq("user_id", user.id);
   
   return (
-    <div className="min-h-screen bg-[#05060f] flex flex-col">
+    <div className="min-h-screen bg-surface-canvas flex flex-col">
+      <ServerSyncTrigger />
       <TopNav email={user.email} isAdmin={user.role === "ADMIN"} />
       <RealtimePanels userId={user.id} />
-      <section className="relative overflow-hidden border-b border-[rgba(186,215,247,0.06)]">
-        <div className="absolute inset-0 bg-grid opacity-[0.22] pointer-events-none" aria-hidden />
-        <div className="relative mx-auto max-w-[1200px] px-6 md:px-10 py-7">
-          <p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Dasbor · Live</p>
-          <h1 className="mt-1 font-[var(--font-aeonikpro)] font-medium text-[26px] md:text-[30px] leading-none tracking-[-0.02em] text-[#d8ecf8]">Semua server.</h1>
-          <p className="mt-2 text-[13px] text-[#9da7ba]">{hasPanels ? `${panels!.length} panel · ${ok}/${panels!.length} online · ${total} server` : "Belum ada panel."}</p>
-          <div className="mt-4 flex gap-2 flex-wrap"><Link href="/panels" className="flash-violet rounded-full px-5 py-2 text-[13px] font-medium text-white">Kelola Panel</Link>{!hasPanels && <span className="inline-flex items-center rounded-full bg-[rgba(199,211,234,0.08)] border border-[rgba(186,215,247,0.08)] text-[11px] text-[#9da7ba] px-3 py-2">Client API key</span>}</div>
+      
+      {/* Page Header */}
+      <section className="border-b border-deep-ink/5 bg-white">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-7">
+          <p className="text-caption font-semibold tracking-wide uppercase text-slate mb-2">Dashboard · Live</p>
+          <h1 className="font-hedvig-letters-serif font-bold text-heading-lg text-deep-ink mb-3">All servers.</h1>
+          <p className="text-slate text-body-sm mb-4">
+            {hasPanels ? `${panels!.length} panel${panels!.length !== 1 ? "s" : ""} · ${ok}/${panels!.length} online · ${total} server${total !== 1 ? "s" : ""}` : "No panels connected yet."}
+          </p>
+          <div className="mt-2 flex gap-3 flex-wrap">
+            <Link href="/panels" className="btn-primary">Manage Panels</Link>
+            {!hasPanels && (
+              <span className="inline-flex items-center rounded-full bg-surface-soft-meadow border border-deep-ink/5 text-caption text-slate px-4 py-2">
+                Client API key required
+              </span>
+            )}
+          </div>
         </div>
       </section>
-      <section className="flex-1 py-6 bg-[#05060f]">
-        <div className="mx-auto max-w-[1200px] px-6 md:px-10">
+      
+      {/* Main Content */}
+      <section className="flex-1 py-8">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10">
           {!hasPanels ? (
-            <div className="rounded-[16px] bg-[rgba(5,6,15,0.82)] border border-[rgba(186,215,247,0.10)] p-8 text-center">
-              <div className="w-10 h-10 mx-auto rounded-full grid place-items-center bg-[rgba(186,214,247,0.06)] border border-[rgba(186,215,247,0.10)]"><span className="w-2 h-2 rounded-full bg-[#663af3] animate-pulse-dot" /></div>
-              <p className="mt-3 text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Kosong</p>
-              <h2 className="mt-1 font-medium text-[16px] text-white">Belum ada panel.</h2>
-              <p className="mt-1 text-[13px] text-[#9da7ba]">Tambah URL + API key.</p>
-              <Link href="/panels" className="mt-4 inline-flex flash-violet rounded-full px-5 py-2 text-[13px] font-medium text-white">Tambah →</Link>
+            /* Empty state — no panels added yet */
+            <div className="rounded-xl bg-white p-8 text-center border border-deep-ink/5">
+              <div className="w-12 h-12 mx-auto rounded-full grid place-items-center bg-hi-yellow/20 text-hi-yellow text-xl mb-4">◈</div>
+              <p className="text-caption font-semibold tracking-wide uppercase text-slate mb-2">Empty</p>
+              <h2 className="font-hedvig-letters-serif font-bold text-heading text-deep-ink mb-2">No panels yet.</h2>
+              <p className="text-slate text-body-sm mb-6">Add your panel URL and API key to get started.</p>
+              <Link href="/panels" className="btn-primary">Add Panel →</Link>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className="glass-card rounded-[16px] p-5"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Panel</p><p className="font-[var(--font-aeonikpro)] font-medium text-[28px] leading-none text-white mt-1">{panels!.length}</p><p className="text-[11px] text-[#9da7ba]">{ok} online</p></div>
-                <div className="glass-card rounded-[16px] p-5"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Server</p><p className="font-[var(--font-aeonikpro)] font-medium text-[28px] leading-none text-white mt-1">{total}</p><p className="text-[11px] text-[#9da7ba]">{total === 0 ? "—" : "total"}</p></div>
-                <div className="rounded-[16px] bg-[#663af3] p-5 text-white shadow-[0_8px_24px_rgba(102,58,243,0.35)]"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-white/70">Status</p><p className="font-medium text-[15px] mt-1">{ok === panels!.length ? "Semua oke" : `${panels!.length - ok} error`}</p><p className="text-[11px] text-white/70">{ok === panels!.length ? "—" : "cek panel"}</p></div>
-                <div className="glass-card rounded-[16px] p-5"><p className="text-[11px] tracking-[0.06em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba]">Enkripsi</p><p className="font-medium text-[15px] text-white mt-1">AES-256</p><p className="text-[11px] text-[#9da7ba]">CBC</p></div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <StatCard label="Panels" value={panels!.length} sub={`${ok} online`} />
+                <StatCard label="Servers" value={total} sub={total === 0 ? "—" : "total"} />
+                <StatCard 
+                  label="Status" 
+                  value={ok === panels!.length ? "All OK" : `${panels!.length - ok} error`} 
+                  sub={ok === panels!.length ? "—" : "check panels"} 
+                  highlight 
+                />
+                <StatCard label="Encryption" value="AES-256" sub="CBC" />
               </div>
-              <div className="mt-4 grid md:grid-cols-3 gap-3">
+              
+              {/* Panel status cards */}
+              <div className="mt-4 grid md:grid-cols-3 gap-4">
                 {results.map((r) => (
-                  <div key={r.panelId} className="glass-card rounded-[16px] p-5">
-                    <div className="flex justify-between gap-3"><div className="min-w-0"><p className="font-medium text-[13px] truncate text-white">{r.panelName}</p><p className="text-[11px] text-[#9da7ba] truncate">{r.panelUrl}</p></div><span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium border ${r.ok ? "bg-[rgba(199,211,234,0.10)] text-[#d1e4fa] border-[rgba(186,215,247,0.08)]" : "bg-[rgba(228,109,76,0.12)] text-[#e46d4c] border-[rgba(228,109,76,0.22)]"}`}><span className={`w-1.5 h-1.5 rounded-full ${r.ok ? "bg-[#663af3] animate-pulse-dot" : "bg-[#e46d4c]"}`} />{r.ok ? `${r.servers.length}` : "Error"}</span></div>
-                    {!r.ok && r.error && <p className="mt-2 text-[11px] text-[#e46d4c] break-words">{r.error}</p>}
+                  <div key={r.panelId} className="rounded-xl bg-white p-5 border border-deep-ink/5 hover:border-deep-ink/10 transition-colors">
+                    <div className="flex justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-medium text-body text-deep-ink truncate">{r.panelName}</p>
+                        <p className="text-caption text-slate truncate">{r.panelUrl}</p>
+                      </div>
+                      <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-caption font-medium border ${r.ok ? "bg-[#59e25d]/10 text-[#59e25d] border-[#59e25d]" : "bg-[#e46d4c]/10 text-[#e46d4c] border-[#e46d4c]"}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${r.ok ? "bg-[#59e25d] animate-pulse-dot" : "bg-[#e46d4c]"}`} />
+                        {r.ok ? `${r.servers.length}` : "Error"}
+                      </span>
+                    </div>
+                    {!r.ok && r.error && <p className="mt-2 text-caption text-[#e46d4c] break-words">{r.error}</p>}
                   </div>
                 ))}
               </div>
+              
               {/* Server control cards */}
               {serverLinks && serverLinks.length > 0 ? (
                 <div className="mt-6">
-                  <p className="text-[11px] tracking-[0.08em] uppercase font-[var(--font-dotdigital)] text-[#9da7ba] mb-3">Server — klik untuk kontrol</p>
-                  <div className="grid md:grid-cols-3 gap-3">
-                    {serverLinks.map((sl: any) => (
-                      <Link key={sl.id} href={`/server/${sl.id}/${sl.identifier}`} className="glass-card rounded-[16px] p-5 block hover:border-[rgba(186,215,247,0.18)] transition-colors group">
-                        <div className="flex justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="font-medium text-[13px] truncate text-white">{sl.name}</p>
-                            <p className="text-[11px] text-[#9da7ba] truncate">{sl.identifier}</p>
+                  <p className="text-caption font-semibold tracking-wide uppercase text-slate mb-3">Servers — click to control</p>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {serverLinks.map((sl: any) => {
+                      const isOn = sl.state === "online";
+                      const isStart = sl.state === "starting";
+                      const isStop = sl.state === "stopping";
+                      const statusCls = isOn
+                        ? "bg-[#59e25d]/10 text-[#59e25d] border-[#59e25d]"
+                        : isStart
+                          ? "bg-hi-yellow/10 text-deep-ink border-hi-yellow"
+                          : isStop
+                            ? "bg-[#e46d4c]/10 text-[#e46d4c] border-[#e46d4c]"
+                            : "bg-surface-soft-meadow text-slate border-deep-ink/5";
+                      const dotCls = isOn ? "bg-[#59e25d] animate-pulse-dot" : isStart ? "bg-hi-yellow animate-pulse-dot" : isStop ? "bg-[#e46d4c]" : "bg-slate";
+                      return (
+                        <Link key={sl.id} href={`/server/${sl.id}/${sl.identifier}`} className="rounded-xl bg-white p-5 border border-deep-ink/5 hover:border-deep-ink/10 transition-colors group block">
+                          <div className="flex justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="font-medium text-body text-deep-ink truncate">{sl.name}</p>
+                              <p className="text-caption text-slate truncate font-mono">{sl.identifier}</p>
+                            </div>
+                            <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-caption font-medium border ${statusCls}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${dotCls}`} />
+                              {sl.state?.toUpperCase() || "OFF"}
+                            </span>
                           </div>
-                          <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium border ${sl.state === "online" ? "bg-[rgba(40,200,64,0.12)] text-[#28c840] border-[rgba(40,200,64,0.20)]" : sl.state === "starting" ? "bg-[rgba(102,58,243,0.12)] text-[#a78bfa] border-[rgba(102,58,243,0.20)]" : sl.state === "stopping" ? "bg-[rgba(228,109,76,0.12)] text-[#e46d4c] border-[rgba(228,109,76,0.20)]" : "bg-[rgba(199,211,234,0.08)] text-[#9da7ba] border-[rgba(186,215,247,0.08)]"}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${sl.state === "online" ? "bg-[#28c840] animate-pulse-dot" : sl.state === "starting" ? "bg-[#663af3] animate-pulse-dot" : sl.state === "stopping" ? "bg-[#e46d4c]" : "bg-[#707070]"}`} />
-                            {sl.state?.toUpperCase() || "OFF"}
-                          </span>
-                        </div>
-                        <div className="mt-2 flex items-center justify-between">
-                          <span className="text-[11px] text-[#9da7ba]">RAM {sl.memory_limit ? sl.memory_limit + "MB" : "—"} · CPU {sl.cpu_limit ? sl.cpu_limit + "%" : "—"}</span>
-                          <span className="text-[11px] text-[#663af3] opacity-0 group-hover:opacity-100 transition-opacity">Kontrol →</span>
-                        </div>
-                      </Link>
-                    ))}
+                          <div className="mt-3 flex items-center justify-between">
+                            <span className="text-caption text-slate">
+                              RAM {sl.memory_limit ? sl.memory_limit + "MB" : "—"} · CPU {sl.cpu_limit ? sl.cpu_limit + "%" : "—"}
+                            </span>
+                            <span className="text-caption text-hi-yellow opacity-0 group-hover:opacity-100 transition-opacity font-medium">Control →</span>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
-              ) : hasPanels ? (
-                <div className="mt-4 rounded-[16px] bg-[rgba(5,6,15,0.82)] border border-[rgba(186,215,247,0.10)] p-6 text-center">
-                  <p className="text-[13px] text-[#9da7ba]">Syncing servers…</p>
-                </div>
-              ) : null}
+              ) : (
+                // Control cards rely on the server_links table + sync which is
+                // intentionally not run during render (revalidatePath crash). The
+                // live aggregated list below is the primary server view.
+                null
+              )}
+              
+              {/* Aggregated server table */}
               <div className="mt-4">
                 <DashboardTable servers={all} />
               </div>
@@ -266,7 +358,11 @@ export default async function DashboardPage() {
           )}
         </div>
       </section>
-      <footer className="border-t border-[rgba(186,215,247,0.06)] bg-[rgba(186,214,247,0.015)] py-4"><div className="mx-auto max-w-[1200px] px-6 md:px-10 text-[11px] text-[#9da7ba]">© 2025 PteroControl · RLS · Live</div></footer>
+      
+      {/* Footer */}
+      <footer className="py-4 text-center text-caption text-slate border-t border-deep-ink/5 bg-white">
+        <p>© 2026 Pterodactyl Control Panel · RLS · Live</p>
+      </footer>
     </div>
   );
 }
