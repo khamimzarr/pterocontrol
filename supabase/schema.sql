@@ -106,6 +106,43 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
+-- ============================================================
+-- SERVER_LINKS
+-- Server per panel yang user hubungkan (auto-seeded dari dashboard)
+-- ============================================================
+create table if not exists public.server_links (
+  id                uuid primary key default gen_random_uuid(),
+  panel_id          uuid not null references public.linked_panels (id) on delete cascade,
+  user_id           uuid not null references public.profiles (id) on delete cascade,
+  identifier        text not null,       -- Pterodactyl server identifier
+  name              text not null,
+  state             text not null default 'offline',
+  memory_limit      integer,
+  cpu_limit         integer,
+  disk_limit        integer,
+  created_at        timestamptz not null default now(),
+  updated_at        timestamptz not null default now(),
+  unique (panel_id, identifier)
+);
+
+create index if not exists idx_server_links_panel on public.server_links (panel_id);
+create index if not exists idx_server_links_user on public.server_links (user_id);
+
+alter table public.server_links enable row level security;
+
+-- RLS policies for server_links
+create policy "server_links_select" on public.server_links
+  for select using (auth.uid() = user_id or public.is_admin());
+create policy "server_links_insert" on public.server_links
+  for insert with check (auth.uid() = user_id);
+create policy "server_links_update_own" on public.server_links
+  for update using (auth.uid() = user_id);
+create policy "server_links_delete_own" on public.server_links
+  for delete using (auth.uid() = user_id);
+
+-- Trigger auto-create on insert for realtime sync of linked_panels updates
+-- Reuse existing trigger logic above.
+
 -- Optional: realtime for live panel data
 do $$
 begin
