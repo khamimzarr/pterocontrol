@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
       path: string;
       method?: string;
       data?: Record<string, unknown>;
+      rawText?: string;
     };
 
     if (!body.panelId || !body.identifier || !body.path) {
@@ -64,7 +65,10 @@ export async function POST(request: NextRequest) {
       cache: "no-store",
     };
 
-    if (body.data && ["POST", "PUT", "PATCH"].includes(method)) {
+    if (body.rawText && ["POST", "PUT", "PATCH"].includes(method)) {
+      fetchOptions.body = body.rawText;
+      headers["Content-Type"] = "text/plain";
+    } else if (body.data && ["POST", "PUT", "PATCH"].includes(method)) {
       fetchOptions.body = JSON.stringify(body.data);
       headers["Content-Type"] = "application/json";
     }

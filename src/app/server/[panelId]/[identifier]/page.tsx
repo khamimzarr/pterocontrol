@@ -7,6 +7,7 @@ import { logout } from "@/lib/actions/auth-actions";
 import { MobileMenu } from "@/components/mobile-menu";
 import { PowerModule } from "@/components/server/power-module";
 import { ConsoleModule } from "@/components/server/console-module";
+import { FileModule } from "@/components/server/file-module";
 
 function TopNav({ email, isAdmin }: { email: string; isAdmin: boolean }) {
   const links = [
@@ -129,6 +130,11 @@ export default async function ServerDetailPage({ params }: { params: Promise<{ p
           {/* Console Module */}
           <div className="animate-slide-up animate-delay-100">
             <ConsoleModule server={sl} identifier={sl.identifier} panelUrl={sl.linked_panels?.panel_url} />
+          </div>
+
+          {/* File Module */}
+          <div className="animate-slide-up animate-delay-150">
+            <FileModule server={sl} identifier={sl.identifier} />
           </div>
           
           {/* Connection Info */}
