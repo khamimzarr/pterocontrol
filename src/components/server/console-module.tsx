@@ -19,11 +19,6 @@ export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModulePro
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (server.state === "offline") {
-      setError("Server is offline. Start the server to view the console.");
-      return;
-    }
-
     if (!terminalRef.current) return;
 
     // Initialize Terminal
@@ -155,7 +150,7 @@ export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModulePro
         term.current.dispose();
       }
     };
-  }, [server.state, server.id, identifier]);
+  }, [server.id, identifier]);
 
   const sendMessage = () => {
     if (!input.trim() || !connected || !ws.current) return;
