@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
 
 interface FileObject {
   name: string;
@@ -46,7 +45,7 @@ export function FileModule({ server, identifier }: { server: any, identifier: st
       setFiles(data.data.map((item: any) => item.attributes));
       setCurrentDir(dir);
     } catch (err) {
-      toast.error("Error loading files");
+      alert("Error loading files");
     } finally {
       setLoading(false);
     }
@@ -86,7 +85,7 @@ export function FileModule({ server, identifier }: { server: any, identifier: st
       const data = await res.json();
       setFileContent(data.data || "");
     } catch (err) {
-      toast.error("Failed to read file");
+      alert("Failed to read file");
       setEditingFile(null);
     }
   };
@@ -108,10 +107,10 @@ export function FileModule({ server, identifier }: { server: any, identifier: st
         }),
       });
       if (!res.ok) throw new Error("Failed to save file");
-      toast.success("File saved successfully");
+      alert("File saved successfully");
       setEditingFile(null);
     } catch (err) {
-      toast.error("Failed to save file");
+      alert("Failed to save file");
     } finally {
       setSaving(false);
     }
@@ -152,11 +151,11 @@ export function FileModule({ server, identifier }: { server: any, identifier: st
 
       if (!uploadReq.ok) throw new Error("Upload to node failed");
       
-      toast.success("File uploaded!");
+      alert("File uploaded!");
       fetchFiles();
     } catch (err) {
       console.error(err);
-      toast.error("Upload failed. Ensure CORS allows this domain.");
+      alert("Upload failed. Ensure CORS allows this domain.");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -166,7 +165,7 @@ export function FileModule({ server, identifier }: { server: any, identifier: st
   const decompressFile = async (fileName: string) => {
     const confirm = window.confirm(`Extract ${fileName}?`);
     if (!confirm) return;
-    toast.info("Extracting...");
+    console.log("Extracting...");
     try {
       const res = await fetch("/api/proxy", {
         method: "POST",
@@ -180,10 +179,10 @@ export function FileModule({ server, identifier }: { server: any, identifier: st
         }),
       });
       if (!res.ok) throw new Error("Failed to extract");
-      toast.success("Extraction complete");
+      alert("Extraction complete");
       fetchFiles();
     } catch (err) {
-      toast.error("Failed to extract");
+      alert("Failed to extract");
     }
   };
 
