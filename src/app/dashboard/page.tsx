@@ -52,18 +52,17 @@ function TopNav({ email, isAdmin, isPreview }: { email?: string | null; isAdmin?
         
         <nav className="hidden md:flex items-center gap-8">
           {isPreview ? (
-            <>
-              <span className="nav-link">Dashboard</span>
-              <Link href="/login" className="nav-link">Log In</Link>
-              <Link href="/register" className="nav-link">Register</Link>
-            </>
+            links.map(l => (
+              <Link key={l.href} href={l.href} className={`nav-link ${l.active ? 'text-deep-ink font-semibold' : ''}`}>
+                {l.label}
+              </Link>
+            ))
           ) : (
-            <>
-              <Link href="/dashboard" className="nav-link">Dashboard</Link>
-              <Link href="/panels" className="nav-link">Panels</Link>
-              {isAdmin && <Link href="/admin" className="nav-link">Admin</Link>}
-              <Link href="/akun" className="nav-link">Account</Link>
-            </>
+            links.map(l => (
+              <Link key={l.href} href={l.href} className={`nav-link ${l.active ? 'text-deep-ink font-semibold' : ''}`}>
+                {l.label}
+              </Link>
+            ))
           )}
         </nav>
         

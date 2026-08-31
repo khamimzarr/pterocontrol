@@ -55,10 +55,17 @@ export function PowerModule({ server, identifier }: PowerModuleProps) {
   ];
 
   const actionStyles: Record<string, string> = {
-    green: "btn-primary",
-    red: "rounded-full bg-[#e46d4c]/10 border border-[#e46d4c]/30 text-[#e46d4c] hover:bg-[#e46d4c]/20 transition-colors",
-    yellow: "btn-secondary",
-    orange: "rounded-full bg-surface-soft-meadow border border-deep-ink/10 text-slate hover:bg-surface-canvas transition-colors",
+    green: "bg-surface-canvas border-2 border-[#59e25d] text-[#59e25d] hover:bg-[#59e25d] hover:text-deep-ink",
+    red: "bg-surface-canvas border-2 border-[#e46d4c] text-[#e46d4c] hover:bg-[#e46d4c] hover:text-white",
+    yellow: "bg-surface-canvas border-2 border-hi-yellow text-deep-ink hover:bg-hi-yellow hover:text-deep-ink",
+    orange: "bg-surface-canvas border-2 border-slate text-slate hover:bg-deep-ink hover:text-white hover:border-deep-ink",
+  };
+
+  const actionIcons: Record<string, React.ReactNode> = {
+    start: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>,
+    stop: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>,
+    restart: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.67 5.67"/></svg>,
+    kill: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>,
   };
 
   return (
@@ -80,8 +87,9 @@ export function PowerModule({ server, identifier }: PowerModuleProps) {
               key={act.action}
               onClick={() => sendSignal(act.action)}
               disabled={loading !== null || act.disabled}
-              className={`py-3 px-4 text-body-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed ${actionStyles[act.color]}`}
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-body-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${actionStyles[act.color]}`}
             >
+              {loading === act.action ? <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" /> : actionIcons[act.action]}
               {loading === act.action ? "..." : act.label}
             </button>
           ))}

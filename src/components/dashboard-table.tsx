@@ -1,9 +1,11 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { AggregatedServer } from "@/lib/pterodactyl";
 
 export function DashboardTable({ servers }: { servers: AggregatedServer[] }) {
+  const router = useRouter();
   const [q, setQ] = useState("");
   const [panel, setPanel] = useState<string>("all");
   const panels = useMemo(() => [...new Set(servers.map((s) => s.panelName))], [servers]);
@@ -74,17 +76,22 @@ export function DashboardTable({ servers }: { servers: AggregatedServer[] }) {
                 <th className="px-4 py-3 font-medium">Node</th>
                 <th className="px-4 py-3 font-medium">RAM</th>
                 <th className="px-4 py-3 font-medium">CPU</th>
-                <th className="px-6 py-3 font-medium">ID</th>
+                <th className="px-4 py-3 font-medium">ID</th>
+                <th className="px-6 py-3 font-medium text-right">Action</th>
               </tr>
             </thead>
             
             <tbody className="divide-y divide-deep-ink/5">
               {filtered.map((s) => (
-                <tr key={`${s.panelId}-${s.identifier}`} className="hover:bg-white/50 transition-colors">
+                <tr 
+                  key={`${s.panelId}-${s.identifier}`} 
+                  onClick={() => router.push(`/server/${s.panelId}/${s.identifier}`)}
+                  className="hover:bg-white/50 transition-colors cursor-pointer group"
+                >
                   <td className="px-6 py-3.5 text-body-sm font-medium text-deep-ink truncate max-w-[180px]">{s.name}</td>
                   
                   <td className="px-4 py-3.5">
-                    <span className="px-3 py-1 rounded-full text-caption font-medium bg-surface-canvas border border-deep-ink/6 text-slate">
+                    <span className="px-3 py-1 rounded-full text-caption font-medium bg-surface-canvas border border-deep-ink/6 text-slate group-hover:border-deep-ink/10 transition-colors">
                       {s.panelName}
                     </span>
                   </td>
@@ -101,7 +108,16 @@ export function DashboardTable({ servers }: { servers: AggregatedServer[] }) {
                     {s.cpuLimit != null ? `${s.cpuLimit}%` : <span className="text-gray-400">—</span>}
                   </td>
                   
-                  <td className="px-6 py-3.5 font-mono text-caption text-slate">{s.identifier}</td>
+                  <td className="px-4 py-3.5 font-mono text-caption text-slate">{s.identifier}</td>
+                  
+                  <td className="px-6 py-3.5 text-right">
+                    <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-surface-soft-meadow text-slate group-hover:bg-hi-yellow group-hover:text-deep-ink transition-colors">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5l7 7-7 7"></path>
+                      </svg>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

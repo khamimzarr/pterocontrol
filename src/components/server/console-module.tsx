@@ -29,13 +29,13 @@ export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModulePro
     // Initialize Terminal
     term.current = new Terminal({
       theme: {
-        background: '#ffffff',
-        foreground: '#1e293b',
-        cursor: '#1e293b',
-        black: '#000000',
-        red: '#e46d4c',
-        green: '#59e25d',
-        yellow: '#facc15',
+        background: '#1e293b',
+        foreground: '#f8fafc',
+        cursor: '#f8fafc',
+        black: '#0f172a',
+        red: '#ff5f56',
+        green: '#27c93f',
+        yellow: '#ffbd2e',
         blue: '#3b82f6',
         magenta: '#d946ef',
         cyan: '#06b6d4',
@@ -173,8 +173,19 @@ export function ConsoleModule({ server, identifier, panelUrl }: ConsoleModulePro
         </span>
       </div>
 
-      <div className="bg-white rounded-lg border border-deep-ink/5 p-4 overflow-hidden">
-        <div ref={terminalRef} className="h-[400px] w-full" />
+      <div className="bg-[#1e293b] rounded-xl border border-deep-ink/10 overflow-hidden shadow-inner">
+        {/* Mac-like Header */}
+        <div className="bg-[#0f172a] px-4 py-3 flex items-center border-b border-white/5">
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+            <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+          </div>
+          <span className="text-[#94a3b8] text-[11px] font-mono font-medium ml-4 tracking-wide uppercase">root@{identifier.slice(0, 8)}:~#</span>
+        </div>
+        <div className="p-4 bg-[#1e293b]">
+          <div ref={terminalRef} className="h-[400px] w-full" />
+        </div>
       </div>
 
       {error && (
